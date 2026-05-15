@@ -21,7 +21,12 @@ Plotting scripts that **compare** or **convergence-test** sweep results (read un
 
 - `compare/lda_svwn_accuracy_test_featom.py` — FEATOM reference vs LDA_SVWN sweep (per-eigenvalue errors); run with no arguments (reads ``summary/all_electron/lda_svwn/``, writes ``lda_svwn_accuracy_test_featom.png``).
 - `compare/hf_accuracy_test_neural_lehtola.py` — HF ``summary/all_electron/hf`` vs ``reference/hf`` closed-subshell reference (total energy, HOMO, exchange); prints detail and writes ``hf_accuracy_test_neural_lehtola_summary.txt`` (see ``--out-txt``).
-- `compare/gga_pbe_convergence_test.py` — GGA-PBE sweep convergence test: max energy / eigenvalue error vs the finest reference case.
+- `compare/gga_pbe_convergence_test.py` — GGA-PBE all-electron sweep convergence: max energy / eigenvalue error vs the finest reference case (PDF).
+- `compare/lda_svwn_convergence_test.py` — Same layout for LDA_SVWN all-electron sweeps under ``summary/all_electron/lda_svwn/`` (PDF).
+- `compare/rscan_convergence_test.py` — Same layout for rSCAN all-electron sweeps under ``summary/all_electron/rscan/`` (PDF).
+- `compare/pseudo_gga_pbe_convergence_test.py` — Pseudo GGA-PBE sweeps under ``summary/pseudo_potential/gga_pbe/`` (PDF; ``--exclude-fe-x``, ``--highlight-z``).
+- `compare/pseudo_lda_svwn_convergence_test.py` — Pseudo LDA-SVWN sweeps under ``summary/pseudo_potential/lda_svwn/`` (PDF; same as above plus ``--exclude-z``, default Z=44 omitted from aggregate).
+- `compare/pseudo_rscan_convergence_test.py` — Pseudo rSCAN sweeps under ``summary/pseudo_potential/rscan/`` (PDF).
 
 ---
 
@@ -169,6 +174,8 @@ python tests/data/build_summary_from_out.py
 
 # 3) Convergence figures read committed summary/ only (no regeneration step here)
 python tests/data/compare/gga_pbe_convergence_test.py
+python tests/data/compare/lda_svwn_convergence_test.py
+python tests/data/compare/rscan_convergence_test.py
 
 # 4) Preview / apply cleanup on large raw trees
 python tests/data/cleanup_dataset.py --summary-only

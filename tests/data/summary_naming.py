@@ -37,6 +37,11 @@ def mesh_tag_from_summary_path(path: Path | str) -> str:
     m = _SUBSET_CASE_DIR.match(stem)
     if m:
         return m.group("mesh")
+    # Legacy: .../subset_*_fe##_R###/configuration_energy_summary.json
+    if stem == "configuration_energy_summary" and p.parent.name:
+        m2 = _SUBSET_CASE_DIR.match(p.parent.name)
+        if m2:
+            return m2.group("mesh")
     return stem
 
 
