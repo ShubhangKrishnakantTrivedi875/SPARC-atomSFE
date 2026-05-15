@@ -1,15 +1,20 @@
-"""Pseudo GGA-PBE sweep convergence test: max error vs finest reference.
+"""rSCAN all-electron sweep convergence test: max error vs finest reference (energy and mean occupied eigenvalue error).
 
-Reads flat ``fe*_R*__*.json`` under ``summary/pseudo_potential/gga_pbe/<sweep>/``. Reference
-is the finest case (largest :math:`R_{\\max}` / :math:`N_{fe}`). **Z = 25 and Z = 51** are
-omitted from the aggregate max unless ``--highlight-z``. Non-converged rows are skipped.
+Reads flat ``fe*_R*__*.json`` under ``summary/all_electron/rscan/<sweep>/`` (from
+``build_summary_from_out.py``). Reference for each sweep is the **finest** case (largest
+:math:`R_{\\max}` for domain-radius sweep, largest :math:`N_{fe}` for FE sweep).
+
+When aggregating max error over atomic numbers (main two-panel figure), **Z = 25 and Z = 51**
+are omitted. ``--highlight-z`` plots that element alone (including 25 or 51 if requested).
+Rows with ``converged: false`` are excluded from error statistics.
 
 Outputs PDF only (see ``--out``).
 
 Run::
 
-    python atomSFE/tests/data/compare/pseudo_gga_pbe_convergence_test.py
-    python atomSFE/tests/data/compare/pseudo_gga_pbe_convergence_test.py --exclude-fe-x 13
+    python atomSFE/tests/data/compare/rscan_convergence_test.py
+    python atomSFE/tests/data/compare/rscan_convergence_test.py --out path/to/figure.pdf
+    python atomSFE/tests/data/compare/rscan_convergence_test.py --highlight-z 26
 """
 
 from __future__ import annotations
@@ -30,9 +35,9 @@ from summary_naming import glob_sweep_summaries, mesh_tag_from_summary_path
 
 _COMPARE_DIR = Path(__file__).resolve().parent
 _SUMMARY_DIR = _DATA_DIR / "summary"
-_DEFAULT_GGA_PBE_ROOT = _SUMMARY_DIR / "pseudo_potential" / "gga_pbe"
-_DEFAULT_OUT_PDF = _COMPARE_DIR / "pseudo_gga_pbe_convergence_test_summary.pdf"
-_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "pseudo_gga_pbe_convergence_test_highlight.pdf"
+_DEFAULT_RSCAN_ROOT = _SUMMARY_DIR / "all_electron" / "rscan"
+_DEFAULT_OUT_PDF = _COMPARE_DIR / "rscan_convergence_test_summary.pdf"
+_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "rscan_convergence_test_highlight.pdf"
 
 plt.rcParams.update(
     {
@@ -82,16 +87,13 @@ def _per_atom_metrics(payload: dict) -> dict[str, tuple[float, np.ndarray]]:
 
 def _build_curve(
     mode: str,
-    xc_root: Path,
-    atomic_number: int | None,
-    extra_aggregate_exclude_z: frozenset[int],
+    rscan_root: Path,
+    atomic_number: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    sweep_dir = xc_root / mode
+    sweep_dir = rscan_root / mode
     files = glob_sweep_summaries(sweep_dir)
     if not files:
         raise RuntimeError(f"No summary files found in {sweep_dir}")
-
-    aggregate_skip = _ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX | extra_aggregate_exclude_z
 
     x_and_payload: list[tuple[float, dict]] = []
     for p in files:
@@ -118,7 +120,7 @@ def _build_curve(
         eig_errs: list[float] = []
         for z in shared:
             zi = int(z)
-            if atomic_number is None and zi in aggregate_skip:
+            if atomic_number is None and zi in _ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX:
                 continue
             if atomic_number is not None and zi != int(atomic_number):
                 continue
@@ -219,52 +221,67 @@ def _plot_convergence_panels(
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
-            "Pseudo GGA-PBE sweep convergence (max error vs finest case; Z=25,51 omitted from "
-            "aggregate unless --highlight-z)."
+            "rSCAN all-electron sweep convergence from summary JSON "
+            "(max error vs finest case; Z=25 and Z=51 omitted from aggregate unless --highlight-z)."
         ),
     )
     ap.add_argument(
-        "--gga-pbe-root",
+        "--rscan-root",
         type=Path,
-        default=_DEFAULT_GGA_PBE_ROOT,
-        help="Path to pseudo_potential/gga_pbe summary root.",
+        default=_DEFAULT_RSCAN_ROOT,
+        help="Path to rscan summary root (domain_radius_sweep/, finite_element_sweep/).",
     )
     ap.add_argument(
         "--out",
         type=Path,
         default=_DEFAULT_OUT_PDF,
-        help="Output PDF path.",
+        help="Output PDF path (aggregate: max error over Z, excluding 25 and 51).",
     )
-    ap.add_argument("--highlight-z", type=int, default=None)
+    ap.add_argument(
+        "--highlight-z",
+        type=int,
+        default=None,
+        help="If set, write a second figure for this atomic number only (e.g. 26 for Fe).",
+    )
     ap.add_argument(
         "--exclude-fe-x",
         type=float,
         nargs="*",
         default=(),
-        help="Optional N_fe values to drop from finite-element panel (e.g. 13.0).",
+        help="Optional N_fe abscissa values to drop from the finite-element panel (e.g. 13.0).",
     )
     args = ap.parse_args()
-    root = args.gga_pbe_root.resolve()
+    root = args.rscan_root.resolve()
     out_pdf = args.out.resolve()
     if out_pdf.suffix.lower() != ".pdf":
         out_pdf = out_pdf.with_suffix(".pdf")
     exclude_fe = {float(v) for v in args.exclude_fe_x}
-    extra_z = frozenset()  # pseudo GGA-PBE: only 25,51
 
     def _curves_for(atomic_number: int | None) -> tuple[np.ndarray, ...]:
-        x_r, y_r_e, y_r_ev = _build_curve("domain_radius_sweep", root, atomic_number, extra_z)
-        x_fe, y_fe_e, y_fe_ev = _build_curve("finite_element_sweep", root, atomic_number, extra_z)
+        x_r, y_r_energy, y_r_eigen = _build_curve("domain_radius_sweep", root, atomic_number=atomic_number)
+        x_fe, y_fe_energy, y_fe_eigen = _build_curve("finite_element_sweep", root, atomic_number=atomic_number)
         if x_fe.size and exclude_fe:
             mask = np.ones(x_fe.shape[0], dtype=bool)
             for ex in exclude_fe:
                 mask &= ~np.isclose(x_fe, ex)
-            x_fe, y_fe_e, y_fe_ev = x_fe[mask], y_fe_e[mask], y_fe_ev[mask]
+            x_fe = x_fe[mask]
+            y_fe_energy = y_fe_energy[mask]
+            y_fe_eigen = y_fe_eigen[mask]
         fe_mask = x_fe > 1.0
-        return x_r, y_r_e, y_r_ev, x_fe[fe_mask], y_fe_e[fe_mask], y_fe_ev[fe_mask]
+        return (
+            x_r,
+            y_r_energy,
+            y_r_eigen,
+            x_fe[fe_mask],
+            y_fe_energy[fe_mask],
+            y_fe_eigen[fe_mask],
+        )
 
-    x_r, y_r_e, y_r_ev, x_fe, y_fe_e, y_fe_ev = _curves_for(None)
+    x_r, y_r_energy, y_r_eigen, x_fe, y_fe_energy, y_fe_eigen = _curves_for(None)
+
     fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
-    _plot_convergence_panels(ax_l, ax_r, x_r, y_r_e, y_r_ev, x_fe, y_fe_e, y_fe_ev)
+    _plot_convergence_panels(ax_l, ax_r, x_r, y_r_energy, y_r_eigen, x_fe, y_fe_energy, y_fe_eigen)
+
     out_pdf.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_pdf, format="pdf", bbox_inches="tight", dpi=600)
     plt.close(fig)
@@ -272,12 +289,16 @@ def main() -> None:
 
     if args.highlight_z is not None:
         z = int(args.highlight_z)
-        x_r_z, y_re_z, y_rev_z, x_fe_z, y_fe_e_z, y_fe_ev_z = _curves_for(z)
+        x_r_z, y_r_e_z, y_r_ev_z, x_fe_z, y_fe_e_z, y_fe_ev_z = _curves_for(z)
         if x_r_z.size == 0 and x_fe_z.size == 0:
-            print(f"Warning: no data for Z={z}; skipped highlight.")
+            print(
+                f"Warning: no data for Z={z} in summaries under {root}; skipped highlight figure.",
+            )
         else:
             fig_z, (ax_l_z, ax_r_z) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
-            _plot_convergence_panels(ax_l_z, ax_r_z, x_r_z, y_re_z, y_rev_z, x_fe_z, y_fe_e_z, y_fe_ev_z)
+            _plot_convergence_panels(
+                ax_l_z, ax_r_z, x_r_z, y_r_e_z, y_r_ev_z, x_fe_z, y_fe_e_z, y_fe_ev_z
+            )
             out_z = _DEFAULT_OUT_HIGHLIGHT_PDF
             if out_pdf != _DEFAULT_OUT_PDF:
                 out_z = out_pdf.parent / f"{out_pdf.stem}_Z{z}.pdf"

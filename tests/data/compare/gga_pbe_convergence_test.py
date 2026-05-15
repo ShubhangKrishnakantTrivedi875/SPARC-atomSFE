@@ -1,12 +1,17 @@
 """GGA-PBE sweep convergence test: max error vs finest reference (energy and mean occupied eigenvalue error).
 
-Reads ``fe*_R*__*.json`` under ``summary/all_electron/gga_pbe/<sweep>/<case>/`` and plots
-domain-radius vs finite-element panels.
+Reads flat ``fe*_R*__*.json`` under ``summary/all_electron/gga_pbe/<sweep>/`` (from
+``build_summary_from_out.py``). Reference for each sweep is the **finest** case (largest
+:math:`R_{\\max}` for domain-radius sweep, largest :math:`N_{fe}` for FE sweep).
+
+When aggregating max error over atomic numbers (main two-panel figure), **Z = 25 and Z = 51**
+are omitted. ``--highlight-z`` plots that element alone (including 25 or 51 if requested).
 
 Run::
 
     python atomSFE/tests/data/compare/gga_pbe_convergence_test.py
-    python atomSFE/tests/data/compare/gga_pbe_convergence_test.py --out path/to/figure.png
+    python atomSFE/tests/data/compare/gga_pbe_convergence_test.py --out path/to/figure.pdf
+    python atomSFE/tests/data/compare/gga_pbe_convergence_test.py --highlight-z 26
 """
 
 from __future__ import annotations
@@ -27,6 +32,9 @@ from summary_naming import glob_sweep_summaries, mesh_tag_from_summary_path
 
 _SUMMARY_DIR = _DATA_DIR / "summary"
 _DEFAULT_GGA_PBE_ROOT = _SUMMARY_DIR / "all_electron" / "gga_pbe"
+_COMPARE_DIR = Path(__file__).resolve().parent
+_DEFAULT_OUT_PDF = _COMPARE_DIR / "gga_pbe_convergence_test_summary.pdf"
+_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "gga_pbe_convergence_test_highlight.pdf"
 
 plt.rcParams.update(
     {
@@ -36,10 +44,17 @@ plt.rcParams.update(
     }
 )
 
-AXIS_LABEL_FONTSIZE = 18
-X_AXIS_LABEL_FONTSIZE = 18
+AXIS_LABEL_FONTSIZE = 21
+X_AXIS_LABEL_FONTSIZE = 24
 TICK_LABEL_FONTSIZE = 15
-LEGEND_FONTSIZE = 18
+LEGEND_FONTSIZE = 21
+
+# Matplotlib default for first/second line is C0 / C1; swap for Energy vs Eigenvalues.
+_COLOR_LINE_ENERGY = "C1"
+_COLOR_LINE_EIGENVALUES = "C0"
+
+# Omitted from max-over-Z error when atomic_number is None (main figure only).
+_ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX: frozenset[int] = frozenset({25, 51})
 
 
 def _load_dataset_summary(path: Path) -> dict:
@@ -47,7 +62,7 @@ def _load_dataset_summary(path: Path) -> dict:
 
 
 def _parse_x_from_mesh_tag(mesh: str, mode: str) -> float:
-    # mesh example: fe12_R040 (from fe12_R040__z1_92.json or subset_004_fe12_R040/)
+    # mesh example: fe12_R040 (from fe12_R040__z1_92.json or subset_* folder name via mesh_tag_from_summary_path)
     fe_txt, r_txt = mesh.split("_", 1)
     fe = float(fe_txt.replace("fe", ""))
     r = float(r_txt.replace("R", ""))
@@ -55,11 +70,12 @@ def _parse_x_from_mesh_tag(mesh: str, mode: str) -> float:
 
 
 def _per_atom_metrics(payload: dict) -> dict[str, tuple[float, np.ndarray]]:
-    # atomic_number -> (total_energy, occupied_eigenvalues_array)
     out: dict[str, tuple[float, np.ndarray]] = {}
     for row in payload.get("config_summaries", []):
         z = row.get("atomic_number")
         if z is None:
+            continue
+        if not row.get("converged", True):
             continue
         e_tot = row.get("total_energy_ha")
         occ = row.get("occupied_eigenvalues_ha") or []
@@ -72,25 +88,25 @@ def _per_atom_metrics(payload: dict) -> dict[str, tuple[float, np.ndarray]]:
 def _build_curve(
     mode: str,
     gga_pbe_root: Path,
+    atomic_number: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     sweep_dir = gga_pbe_root / mode
     files = glob_sweep_summaries(sweep_dir)
     if not files:
         raise RuntimeError(f"No summary files found in {sweep_dir}")
 
-    x_and_payload = []
+    x_and_payload: list[tuple[float, dict]] = []
     for p in files:
         x = _parse_x_from_mesh_tag(mesh_tag_from_summary_path(p), mode)
         x_and_payload.append((x, _load_dataset_summary(p)))
     x_and_payload.sort(key=lambda t: t[0])
 
-    # reference = largest x
     x_ref, payload_ref = x_and_payload[-1]
     ref_map = _per_atom_metrics(payload_ref)
 
-    xs = []
-    y_energy = []
-    y_eigen = []
+    xs: list[float] = []
+    y_energy: list[float] = []
+    y_eigen: list[float] = []
 
     for x, payload in x_and_payload:
         if np.isclose(x, x_ref):
@@ -100,9 +116,14 @@ def _build_curve(
         if not shared:
             continue
 
-        e_errs = []
-        eig_errs = []
+        e_errs: list[float] = []
+        eig_errs: list[float] = []
         for z in shared:
+            zi = int(z)
+            if atomic_number is None and zi in _ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX:
+                continue
+            if atomic_number is not None and zi != int(atomic_number):
+                continue
             e_ref, eig_ref_all = ref_map[z]
             e_cur, eig_cur_all = cur_map[z]
             e_errs.append(abs(e_cur - e_ref))
@@ -121,38 +142,33 @@ def _build_curve(
     return np.asarray(xs), np.asarray(y_energy), np.asarray(y_eigen)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(
-        description="GGA-PBE sweep convergence-test figure from summary JSON (max error vs finest case).",
+def _plot_convergence_panels(
+    ax_l: plt.Axes,
+    ax_r: plt.Axes,
+    x_r: np.ndarray,
+    y_r_energy: np.ndarray,
+    y_r_eigen: np.ndarray,
+    x_fe: np.ndarray,
+    y_fe_energy: np.ndarray,
+    y_fe_eigen: np.ndarray,
+) -> None:
+    ax_l.semilogy(
+        x_r,
+        np.maximum(y_r_energy, 1e-20),
+        marker="o",
+        lw=1.8,
+        color=_COLOR_LINE_ENERGY,
+        label="Energy",
     )
-    ap.add_argument(
-        "--gga-pbe-root",
-        type=Path,
-        default=_DEFAULT_GGA_PBE_ROOT,
-        help="Path to gga_pbe summary root (contains domain_radius_sweep/, finite_element_sweep/).",
+    ax_l.semilogy(
+        x_r,
+        np.maximum(y_r_eigen, 1e-20),
+        marker="s",
+        lw=1.8,
+        color=_COLOR_LINE_EIGENVALUES,
+        label="Eigenvalues",
     )
-    ap.add_argument(
-        "--out",
-        type=Path,
-        default=Path(__file__).resolve().parent / "gga_pbe_convergence_test_summary.png",
-        help="Output PNG path.",
-    )
-    args = ap.parse_args()
-    root = args.gga_pbe_root.resolve()
-    out_png = args.out.resolve()
-
-    x_r, y_r_energy, y_r_eigen = _build_curve("domain_radius_sweep", root)
-    x_fe, y_fe_energy, y_fe_eigen = _build_curve("finite_element_sweep", root)
-    fe_mask = (x_fe > 1.0) & (~np.isclose(x_fe, 13.0))
-    x_fe = x_fe[fe_mask]
-    y_fe_energy = y_fe_energy[fe_mask]
-    y_fe_eigen = y_fe_eigen[fe_mask]
-
-    fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
-
-    ax_l.semilogy(x_r, np.maximum(y_r_energy, 1e-20), marker="o", lw=1.8, label="Energy")
-    ax_l.semilogy(x_r, np.maximum(y_r_eigen, 1e-20), marker="s", lw=1.8, label="Eigenvalues")
-    ax_l.set_xlabel(r"$R_{max}$ (Bohr)", fontsize=X_AXIS_LABEL_FONTSIZE)
+    ax_l.set_xlabel(r"$R_{max} \, \mathrm{(Bohr)}$", fontsize=X_AXIS_LABEL_FONTSIZE)
     ax_l.set_ylabel(r"Error (Ha)", fontsize=AXIS_LABEL_FONTSIZE)
     ax_l.yaxis.set_major_locator(LogLocator(base=10))
     ax_l.yaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10)))
@@ -164,8 +180,22 @@ def main() -> None:
     ax_l.grid(True, which="minor", axis="y", alpha=0.40, linestyle=":", linewidth=0.70)
     ax_l.legend(fontsize=LEGEND_FONTSIZE)
 
-    ax_r.semilogy(x_fe, np.maximum(y_fe_energy, 1e-20), marker="o", lw=1.8, label="Energy")
-    ax_r.semilogy(x_fe, np.maximum(y_fe_eigen, 1e-20), marker="s", lw=1.8, label="Eigenvalues")
+    ax_r.semilogy(
+        x_fe,
+        np.maximum(y_fe_energy, 1e-20),
+        marker="o",
+        lw=1.8,
+        color=_COLOR_LINE_ENERGY,
+        label="Energy",
+    )
+    ax_r.semilogy(
+        x_fe,
+        np.maximum(y_fe_eigen, 1e-20),
+        marker="s",
+        lw=1.8,
+        color=_COLOR_LINE_EIGENVALUES,
+        label="Eigenvalues",
+    )
     ax_r.set_xlabel(r"$N_{fe}$", fontsize=X_AXIS_LABEL_FONTSIZE)
     ax_r.set_ylabel(r"Error (Ha)", fontsize=AXIS_LABEL_FONTSIZE)
     ax_r.yaxis.set_major_locator(LogLocator(base=10, numticks=100))
@@ -187,11 +217,96 @@ def main() -> None:
     ax_r.grid(True, which="minor", axis="y", alpha=0.45, linestyle=":", linewidth=0.75)
     ax_r.legend(fontsize=LEGEND_FONTSIZE)
 
-    out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=600, bbox_inches="tight")
-    fig.savefig("gga_pbe_convergence_test_summary.pdf", format="pdf", bbox_inches="tight")
+
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description=(
+            "GGA-PBE sweep convergence figure from summary JSON (max error vs finest case; "
+            "Z=25 and Z=51 omitted from aggregate unless --highlight-z)."
+        ),
+    )
+    ap.add_argument(
+        "--gga-pbe-root",
+        type=Path,
+        default=_DEFAULT_GGA_PBE_ROOT,
+        help="Path to gga_pbe summary root (domain_radius_sweep/, finite_element_sweep/).",
+    )
+    ap.add_argument(
+        "--out",
+        type=Path,
+        default=_DEFAULT_OUT_PDF,
+        help="Output PDF path (aggregate: max error over Z, excluding 25 and 51).",
+    )
+    ap.add_argument(
+        "--highlight-z",
+        type=int,
+        default=None,
+        help="If set, write a second figure for this atomic number only (e.g. 26 for Fe).",
+    )
+    ap.add_argument(
+        "--exclude-fe-x",
+        type=float,
+        nargs="*",
+        default=(),
+        help="Optional N_fe abscissa values to drop from the finite-element panel (e.g. 13.0).",
+    )
+    args = ap.parse_args()
+    root = args.gga_pbe_root.resolve()
+    out_pdf = args.out.resolve()
+    if out_pdf.suffix.lower() != ".pdf":
+        out_pdf = out_pdf.with_suffix(".pdf")
+    exclude_fe = {float(v) for v in args.exclude_fe_x}
+
+    def _curves_for(atomic_number: int | None) -> tuple[np.ndarray, ...]:
+        x_r, y_r_energy, y_r_eigen = _build_curve("domain_radius_sweep", root, atomic_number=atomic_number)
+        x_fe, y_fe_energy, y_fe_eigen = _build_curve("finite_element_sweep", root, atomic_number=atomic_number)
+        if x_fe.size and exclude_fe:
+            mask = np.ones(x_fe.shape[0], dtype=bool)
+            for ex in exclude_fe:
+                mask &= ~np.isclose(x_fe, ex)
+            x_fe = x_fe[mask]
+            y_fe_energy = y_fe_energy[mask]
+            y_fe_eigen = y_fe_eigen[mask]
+        fe_mask = x_fe > 1.0
+        return (
+            x_r,
+            y_r_energy,
+            y_r_eigen,
+            x_fe[fe_mask],
+            y_fe_energy[fe_mask],
+            y_fe_eigen[fe_mask],
+        )
+
+    x_r, y_r_energy, y_r_eigen, x_fe, y_fe_energy, y_fe_eigen = _curves_for(None)
+
+    fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
+    _plot_convergence_panels(ax_l, ax_r, x_r, y_r_energy, y_r_eigen, x_fe, y_fe_energy, y_fe_eigen)
+
+    out_pdf.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_pdf, format="pdf", bbox_inches="tight", dpi=600)
     plt.close(fig)
-    print(f"Wrote figure: {out_png}")
+    print(f"Wrote figure: {out_pdf}")
+
+    if args.highlight_z is not None:
+        z = int(args.highlight_z)
+        x_r_z, y_r_e_z, y_r_ev_z, x_fe_z, y_fe_e_z, y_fe_ev_z = _curves_for(z)
+        if x_r_z.size == 0 and x_fe_z.size == 0:
+            print(
+                f"Warning: no data for Z={z} in summaries under {root}; skipped highlight figure.",
+            )
+        else:
+            fig_z, (ax_l_z, ax_r_z) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
+            _plot_convergence_panels(
+                ax_l_z, ax_r_z, x_r_z, y_r_e_z, y_r_ev_z, x_fe_z, y_fe_e_z, y_fe_ev_z
+            )
+            out_z = _DEFAULT_OUT_HIGHLIGHT_PDF
+            if out_pdf != _DEFAULT_OUT_PDF:
+                out_z = out_pdf.parent / f"{out_pdf.stem}_Z{z}.pdf"
+            out_z = out_z.resolve()
+            out_z.parent.mkdir(parents=True, exist_ok=True)
+            fig_z.savefig(out_z, format="pdf", bbox_inches="tight", dpi=600)
+            plt.close(fig_z)
+            print(f"Wrote figure: {out_z}")
 
 
 if __name__ == "__main__":

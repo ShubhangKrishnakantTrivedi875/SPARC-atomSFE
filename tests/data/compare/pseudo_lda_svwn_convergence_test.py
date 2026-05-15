@@ -1,12 +1,16 @@
 """Pseudo LDA-SVWN sweep convergence test: max error vs finest reference.
 
-Reads ``fe*_R*__*.json`` under ``summary/pseudo_potential/lda_svwn/<sweep>/<case>/`` and plots domain-radius vs
-finite-element panels.
+Reads flat ``fe*_R*__*.json`` under ``summary/pseudo_potential/lda_svwn/<sweep>/``. Same
+panel style as ``gga_pbe_convergence_test.py``: finest case is reference; **Z = 25 and 51**
+omitted from aggregate max unless ``--highlight-z``; ``--exclude-z`` adds more Z values
+(default **44**, legacy pseudo-LDA behavior). Non-converged rows skipped.
+
+Outputs PDF only.
 
 Run::
 
     python atomSFE/tests/data/compare/pseudo_lda_svwn_convergence_test.py
-    python atomSFE/tests/data/compare/pseudo_lda_svwn_convergence_test.py --out path/to/figure.png
+    python atomSFE/tests/data/compare/pseudo_lda_svwn_convergence_test.py --exclude-z 44 52 --exclude-fe-x 13
 """
 
 from __future__ import annotations
@@ -23,10 +27,13 @@ from matplotlib.ticker import LogFormatterMathtext, LogLocator, MultipleLocator
 _DATA_DIR = Path(__file__).resolve().parent.parent
 if str(_DATA_DIR) not in sys.path:
     sys.path.insert(0, str(_DATA_DIR))
-from summary_naming import glob_sweep_summaries
+from summary_naming import glob_sweep_summaries, mesh_tag_from_summary_path
 
+_COMPARE_DIR = Path(__file__).resolve().parent
 _SUMMARY_DIR = _DATA_DIR / "summary"
-_DEFAULT_LDA_SVWN_ROOT = _SUMMARY_DIR / "pseudo_potential" / "lda_svwn"
+_DEFAULT_LDA_ROOT = _SUMMARY_DIR / "pseudo_potential" / "lda_svwn"
+_DEFAULT_OUT_PDF = _COMPARE_DIR / "pseudo_lda_svwn_convergence_test_summary.pdf"
+_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "pseudo_lda_svwn_convergence_test_highlight.pdf"
 
 plt.rcParams.update(
     {
@@ -36,77 +43,86 @@ plt.rcParams.update(
     }
 )
 
-AXIS_LABEL_FONTSIZE = 15
-X_AXIS_LABEL_FONTSIZE = 18
+AXIS_LABEL_FONTSIZE = 21
+X_AXIS_LABEL_FONTSIZE = 24
 TICK_LABEL_FONTSIZE = 15
-LEGEND_FONTSIZE = 15
+LEGEND_FONTSIZE = 21
+
+_COLOR_LINE_ENERGY = "C1"
+_COLOR_LINE_EIGENVALUES = "C0"
+
+_ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX: frozenset[int] = frozenset({25, 51})
 
 
 def _load_dataset_summary(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _parse_x_from_dataset_name(name: str, mode: str) -> float:
-    fe_txt, r_txt = name.split("_")
+def _parse_x_from_mesh_tag(mesh: str, mode: str) -> float:
+    fe_txt, r_txt = mesh.split("_", 1)
     fe = float(fe_txt.replace("fe", ""))
     r = float(r_txt.replace("R", ""))
     return r if mode == "domain_radius_sweep" else fe
 
 
-def _per_atom_metrics(payload: dict, excluded_z: set[int] | None = None) -> dict[str, tuple[float, np.ndarray]]:
-    excluded = excluded_z or set()
+def _per_atom_metrics(payload: dict) -> dict[str, tuple[float, np.ndarray]]:
     out: dict[str, tuple[float, np.ndarray]] = {}
     for row in payload.get("config_summaries", []):
         z = row.get("atomic_number")
         if z is None:
             continue
-        z_int = int(z)
-        if z_int in excluded:
+        if not row.get("converged", True):
             continue
         e_tot = row.get("total_energy_ha")
         occ = row.get("occupied_eigenvalues_ha") or []
         if e_tot is None or len(occ) == 0:
             continue
-        out[str(z_int)] = (float(e_tot), np.asarray(occ, dtype=float))
+        out[str(int(z))] = (float(e_tot), np.asarray(occ, dtype=float))
     return out
 
 
 def _build_curve(
     mode: str,
-    lda_svwn_root: Path,
-    excluded_z: set[int] | None = None,
+    xc_root: Path,
+    atomic_number: int | None,
+    extra_aggregate_exclude_z: frozenset[int],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    sweep_dir = lda_svwn_root / mode
+    sweep_dir = xc_root / mode
     files = glob_sweep_summaries(sweep_dir)
     if not files:
         raise RuntimeError(f"No summary files found in {sweep_dir}")
 
-    x_and_payload = []
+    aggregate_skip = _ATOMIC_NUMBERS_EXCLUDED_FROM_AGGREGATE_MAX | extra_aggregate_exclude_z
+
+    x_and_payload: list[tuple[float, dict]] = []
     for p in files:
-        x = _parse_x_from_dataset_name(p.parent.name, mode)
+        x = _parse_x_from_mesh_tag(mesh_tag_from_summary_path(p), mode)
         x_and_payload.append((x, _load_dataset_summary(p)))
     x_and_payload.sort(key=lambda t: t[0])
 
     x_ref, payload_ref = x_and_payload[-1]
-    ref_map = _per_atom_metrics(payload_ref, excluded_z=excluded_z)
+    ref_map = _per_atom_metrics(payload_ref)
 
-    xs = []
-    y_energy = []
-    y_eigen = []
+    xs: list[float] = []
+    y_energy: list[float] = []
+    y_eigen: list[float] = []
 
     for x, payload in x_and_payload:
         if np.isclose(x, x_ref):
             continue
-        if mode == "domain_radius_sweep" and np.isclose(x, 35.0):
-            continue
-        cur_map = _per_atom_metrics(payload, excluded_z=excluded_z)
+        cur_map = _per_atom_metrics(payload)
         shared = sorted(set(ref_map.keys()) & set(cur_map.keys()))
         if not shared:
             continue
 
-        e_errs = []
-        eig_errs = []
+        e_errs: list[float] = []
+        eig_errs: list[float] = []
         for z in shared:
+            zi = int(z)
+            if atomic_number is None and zi in aggregate_skip:
+                continue
+            if atomic_number is not None and zi != int(atomic_number):
+                continue
             e_ref, eig_ref_all = ref_map[z]
             e_cur, eig_cur_all = cur_map[z]
             e_errs.append(abs(e_cur - e_ref))
@@ -125,46 +141,33 @@ def _build_curve(
     return np.asarray(xs), np.asarray(y_energy), np.asarray(y_eigen)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(
-        description="Pseudo LDA-SVWN sweep convergence-test figure from summary JSON (max error vs finest case).",
+def _plot_convergence_panels(
+    ax_l: plt.Axes,
+    ax_r: plt.Axes,
+    x_r: np.ndarray,
+    y_r_energy: np.ndarray,
+    y_r_eigen: np.ndarray,
+    x_fe: np.ndarray,
+    y_fe_energy: np.ndarray,
+    y_fe_eigen: np.ndarray,
+) -> None:
+    ax_l.semilogy(
+        x_r,
+        np.maximum(y_r_energy, 1e-20),
+        marker="o",
+        lw=1.8,
+        color=_COLOR_LINE_ENERGY,
+        label="Energy",
     )
-    ap.add_argument(
-        "--lda-svwn-root",
-        type=Path,
-        default=_DEFAULT_LDA_SVWN_ROOT,
-        help="Path to pseudo/lda_svwn summary root (contains domain_radius_sweep/, finite_element_sweep/).",
+    ax_l.semilogy(
+        x_r,
+        np.maximum(y_r_eigen, 1e-20),
+        marker="s",
+        lw=1.8,
+        color=_COLOR_LINE_EIGENVALUES,
+        label="Eigenvalues",
     )
-    ap.add_argument(
-        "--out",
-        type=Path,
-        default=Path(__file__).resolve().parent / "pseudo_lda_svwn_convergence_test_summary.png",
-        help="Output PNG path.",
-    )
-    ap.add_argument(
-        "--exclude-z",
-        type=int,
-        nargs="*",
-        default=[44],
-        help="Atomic numbers to exclude only in compare/plot (default: 44).",
-    )
-    args = ap.parse_args()
-    root = args.lda_svwn_root.resolve()
-    out_png = args.out.resolve()
-    excluded_z = set(int(z) for z in args.exclude_z)
-
-    x_r, y_r_energy, y_r_eigen = _build_curve("domain_radius_sweep", root, excluded_z=excluded_z)
-    x_fe, y_fe_energy, y_fe_eigen = _build_curve("finite_element_sweep", root, excluded_z=excluded_z)
-    fe_mask = (x_fe > 1.0) & (~np.isclose(x_fe, 13.0))
-    x_fe = x_fe[fe_mask]
-    y_fe_energy = y_fe_energy[fe_mask]
-    y_fe_eigen = y_fe_eigen[fe_mask]
-
-    fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
-
-    ax_l.semilogy(x_r, np.maximum(y_r_energy, 1e-20), marker="o", lw=1.8, label="Energy")
-    ax_l.semilogy(x_r, np.maximum(y_r_eigen, 1e-20), marker="s", lw=1.8, label="Eigenvalues")
-    ax_l.set_xlabel(r"$R_{\mathrm{max}}\ \mathrm{(Bohr)}$", fontsize=X_AXIS_LABEL_FONTSIZE)
+    ax_l.set_xlabel(r"$R_{max} \, \mathrm{(Bohr)}$", fontsize=X_AXIS_LABEL_FONTSIZE)
     ax_l.set_ylabel(r"Error (Ha)", fontsize=AXIS_LABEL_FONTSIZE)
     ax_l.yaxis.set_major_locator(LogLocator(base=10))
     ax_l.yaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10)))
@@ -176,9 +179,23 @@ def main() -> None:
     ax_l.grid(True, which="minor", axis="y", alpha=0.40, linestyle=":", linewidth=0.70)
     ax_l.legend(fontsize=LEGEND_FONTSIZE)
 
-    ax_r.semilogy(x_fe, np.maximum(y_fe_energy, 1e-20), marker="o", lw=1.8, label="Energy")
-    ax_r.semilogy(x_fe, np.maximum(y_fe_eigen, 1e-20), marker="s", lw=1.8, label="Eigenvalues")
-    ax_r.set_xlabel(r"$N_{\mathrm{fe}}$", fontsize=X_AXIS_LABEL_FONTSIZE)
+    ax_r.semilogy(
+        x_fe,
+        np.maximum(y_fe_energy, 1e-20),
+        marker="o",
+        lw=1.8,
+        color=_COLOR_LINE_ENERGY,
+        label="Energy",
+    )
+    ax_r.semilogy(
+        x_fe,
+        np.maximum(y_fe_eigen, 1e-20),
+        marker="s",
+        lw=1.8,
+        color=_COLOR_LINE_EIGENVALUES,
+        label="Eigenvalues",
+    )
+    ax_r.set_xlabel(r"$N_{fe}$", fontsize=X_AXIS_LABEL_FONTSIZE)
     ax_r.set_ylabel(r"Error (Ha)", fontsize=AXIS_LABEL_FONTSIZE)
     ax_r.yaxis.set_major_locator(LogLocator(base=10, numticks=100))
     ax_r.yaxis.set_minor_locator(LogLocator(base=10, subs=tuple(np.arange(2, 10)), numticks=100))
@@ -199,10 +216,73 @@ def main() -> None:
     ax_r.grid(True, which="minor", axis="y", alpha=0.45, linestyle=":", linewidth=0.75)
     ax_r.legend(fontsize=LEGEND_FONTSIZE)
 
-    out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=600, bbox_inches="tight")
+
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description=(
+            "Pseudo LDA-SVWN sweep convergence (25,51 + --exclude-z omitted from aggregate "
+            "unless --highlight-z)."
+        ),
+    )
+    ap.add_argument("--lda-svwn-root", type=Path, default=_DEFAULT_LDA_ROOT)
+    ap.add_argument("--out", type=Path, default=_DEFAULT_OUT_PDF)
+    ap.add_argument("--highlight-z", type=int, default=None)
+    ap.add_argument(
+        "--exclude-fe-x",
+        type=float,
+        nargs="*",
+        default=(),
+    )
+    ap.add_argument(
+        "--exclude-z",
+        type=int,
+        nargs="*",
+        default=[44],
+        help="Extra Z omitted from aggregate max (default: 44). Pass empty after flag to disable.",
+    )
+    args = ap.parse_args()
+    root = args.lda_svwn_root.resolve()
+    out_pdf = args.out.resolve()
+    if out_pdf.suffix.lower() != ".pdf":
+        out_pdf = out_pdf.with_suffix(".pdf")
+    exclude_fe = {float(v) for v in args.exclude_fe_x}
+    extra_z = frozenset(int(z) for z in args.exclude_z)
+
+    def _curves_for(atomic_number: int | None) -> tuple[np.ndarray, ...]:
+        x_r, y_r_e, y_r_ev = _build_curve("domain_radius_sweep", root, atomic_number, extra_z)
+        x_fe, y_fe_e, y_fe_ev = _build_curve("finite_element_sweep", root, atomic_number, extra_z)
+        if x_fe.size and exclude_fe:
+            mask = np.ones(x_fe.shape[0], dtype=bool)
+            for ex in exclude_fe:
+                mask &= ~np.isclose(x_fe, ex)
+            x_fe, y_fe_e, y_fe_ev = x_fe[mask], y_fe_e[mask], y_fe_ev[mask]
+        fe_mask = x_fe > 1.0
+        return x_r, y_r_e, y_r_ev, x_fe[fe_mask], y_fe_e[fe_mask], y_fe_ev[fe_mask]
+
+    x_r, y_r_e, y_r_ev, x_fe, y_fe_e, y_fe_ev = _curves_for(None)
+    fig, (ax_l, ax_r) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
+    _plot_convergence_panels(ax_l, ax_r, x_r, y_r_e, y_r_ev, x_fe, y_fe_e, y_fe_ev)
+    out_pdf.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_pdf, format="pdf", bbox_inches="tight", dpi=600)
     plt.close(fig)
-    print(f"Wrote figure: {out_png}")
+    print(f"Wrote figure: {out_pdf}")
+
+    if args.highlight_z is not None:
+        z = int(args.highlight_z)
+        x_r_z, y_re_z, y_rev_z, x_fe_z, y_fe_e_z, y_fe_ev_z = _curves_for(z)
+        if x_r_z.size == 0 and x_fe_z.size == 0:
+            print(f"Warning: no data for Z={z}; skipped highlight.")
+        else:
+            fig_z, (ax_l_z, ax_r_z) = plt.subplots(1, 2, figsize=(12, 4.8), constrained_layout=True)
+            _plot_convergence_panels(ax_l_z, ax_r_z, x_r_z, y_re_z, y_rev_z, x_fe_z, y_fe_e_z, y_fe_ev_z)
+            out_z = _DEFAULT_OUT_HIGHLIGHT_PDF
+            if out_pdf != _DEFAULT_OUT_PDF:
+                out_z = out_pdf.parent / f"{out_pdf.stem}_Z{z}.pdf"
+            out_z = out_z.resolve()
+            out_z.parent.mkdir(parents=True, exist_ok=True)
+            fig_z.savefig(out_z, format="pdf", bbox_inches="tight", dpi=600)
+            plt.close(fig_z)
+            print(f"Wrote figure: {out_z}")
 
 
 if __name__ == "__main__":

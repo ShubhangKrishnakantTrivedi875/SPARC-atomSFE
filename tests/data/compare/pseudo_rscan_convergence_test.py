@@ -1,6 +1,6 @@
-"""Pseudo GGA-PBE sweep convergence test: max error vs finest reference.
+"""Pseudo rSCAN sweep convergence test: max error vs finest reference.
 
-Reads flat ``fe*_R*__*.json`` under ``summary/pseudo_potential/gga_pbe/<sweep>/``. Reference
+Reads flat ``fe*_R*__*.json`` under ``summary/pseudo_potential/rscan/<sweep>/``. Reference
 is the finest case (largest :math:`R_{\\max}` / :math:`N_{fe}`). **Z = 25 and Z = 51** are
 omitted from the aggregate max unless ``--highlight-z``. Non-converged rows are skipped.
 
@@ -8,8 +8,8 @@ Outputs PDF only (see ``--out``).
 
 Run::
 
-    python atomSFE/tests/data/compare/pseudo_gga_pbe_convergence_test.py
-    python atomSFE/tests/data/compare/pseudo_gga_pbe_convergence_test.py --exclude-fe-x 13
+    python atomSFE/tests/data/compare/pseudo_rscan_convergence_test.py
+    python atomSFE/tests/data/compare/pseudo_rscan_convergence_test.py --exclude-fe-x 13
 """
 
 from __future__ import annotations
@@ -30,9 +30,9 @@ from summary_naming import glob_sweep_summaries, mesh_tag_from_summary_path
 
 _COMPARE_DIR = Path(__file__).resolve().parent
 _SUMMARY_DIR = _DATA_DIR / "summary"
-_DEFAULT_GGA_PBE_ROOT = _SUMMARY_DIR / "pseudo_potential" / "gga_pbe"
-_DEFAULT_OUT_PDF = _COMPARE_DIR / "pseudo_gga_pbe_convergence_test_summary.pdf"
-_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "pseudo_gga_pbe_convergence_test_highlight.pdf"
+_DEFAULT_RSCAN_ROOT = _SUMMARY_DIR / "pseudo_potential" / "rscan"
+_DEFAULT_OUT_PDF = _COMPARE_DIR / "pseudo_rscan_convergence_test_summary.pdf"
+_DEFAULT_OUT_HIGHLIGHT_PDF = _COMPARE_DIR / "pseudo_rscan_convergence_test_highlight.pdf"
 
 plt.rcParams.update(
     {
@@ -219,15 +219,15 @@ def _plot_convergence_panels(
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
-            "Pseudo GGA-PBE sweep convergence (max error vs finest case; Z=25,51 omitted from "
+            "Pseudo rSCAN sweep convergence (max error vs finest case; Z=25,51 omitted from "
             "aggregate unless --highlight-z)."
         ),
     )
     ap.add_argument(
-        "--gga-pbe-root",
+        "--rscan-root",
         type=Path,
-        default=_DEFAULT_GGA_PBE_ROOT,
-        help="Path to pseudo_potential/gga_pbe summary root.",
+        default=_DEFAULT_RSCAN_ROOT,
+        help="Path to pseudo_potential/rscan summary root.",
     )
     ap.add_argument(
         "--out",
@@ -244,12 +244,12 @@ def main() -> None:
         help="Optional N_fe values to drop from finite-element panel (e.g. 13.0).",
     )
     args = ap.parse_args()
-    root = args.gga_pbe_root.resolve()
+    root = args.rscan_root.resolve()
     out_pdf = args.out.resolve()
     if out_pdf.suffix.lower() != ".pdf":
         out_pdf = out_pdf.with_suffix(".pdf")
     exclude_fe = {float(v) for v in args.exclude_fe_x}
-    extra_z = frozenset()  # pseudo GGA-PBE: only 25,51
+    extra_z = frozenset()  # pseudo rSCAN: only 25,51
 
     def _curves_for(atomic_number: int | None) -> tuple[np.ndarray, ...]:
         x_r, y_r_e, y_r_ev = _build_curve("domain_radius_sweep", root, atomic_number, extra_z)
