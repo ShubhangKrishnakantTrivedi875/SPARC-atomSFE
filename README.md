@@ -5,7 +5,7 @@
 
 # SPARC-atomSFE — Atomic DFT with Spectral Finite Elements
 
-[![CI](https://github.com/1040403998/SPARC-atomSFE-released/actions/workflows/ci.yml/badge.svg)](https://github.com/1040403998/SPARC-atomSFE-released/actions/workflows/ci.yml)
+[![CI](https://github.com/SPARC-X/SPARC-atomSFE/actions/workflows/ci.yml/badge.svg)](https://github.com/SPARC-X/SPARC-atomSFE/actions/workflows/ci.yml)
 
 [**Features**](#features)
 | [**Quick start**](#quick-start)
