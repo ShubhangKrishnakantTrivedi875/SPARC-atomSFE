@@ -3,7 +3,7 @@
 </div>
 
 
-# SPARC-atomSFE — Atomic DFT with Spectral Finite Elements
+# SPARC-atomSFE 
 
 ![build](https://img.shields.io/badge/build-passing-brightgreen)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
@@ -18,11 +18,9 @@
 
 ## What is SPARC-atomSFE?
 
-**SPARC-atomSFE** is a Python library for atomic (spherical) density functional theory (DFT) with a Spectral Finite Element (SFE) discretization in real space. It is heavily optimized and aims for high numerical accuracy.
+**SPARC-atomSFE** is a Python library for atomic structure calculatons in the framework of Kohn-Sham density functional theory (DFT). It employs a Spectral Finite Element (SFE) discretization. It is heavily optimized and aims for high numerical accuracy.
 
-SPARC-atomSFE solves the Kohn-Sham equations self-consistently and supports a wide range of exchange-correlation functionals. Calculations can be run in all-electron mode or by reading norm-conserving pseudopotential (PSP) files.
-
-Advanced capabilities include the optimized effective potential (OEP) method, hybrid functionals with exact exchange (e.g. HF), RPA with parallelization, configurable parameters and advanced options, and more.
+The package supports both all-electron and norm-conserving pseudopotential calculations across a comprehensive hierarchy of exchange-correlation approximations, spanning local, semilocal, and nonlocal functionals. The latter includes hybrid functionals and the many-body random phase approximation, for which we implement both the generalized Kohn-Sham approach and the optimized effective potential (OEP) method, with OEP necessary for eigenvalue-dependent functionals.
 
 This is a research code. Please try it out, [report issues](https://github.com/SPARC-X/SPARC-atomSFE/issues), and share feedback.
 
