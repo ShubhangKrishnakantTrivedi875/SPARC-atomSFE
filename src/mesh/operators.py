@@ -76,6 +76,8 @@ FIELD_VALUES_NDIM_ERROR_MESSAGE = \
 FIELD_VALUES_SHAPE_ERROR_MESSAGE = \
     "parameter 'field_values' shape {} does not match number_of_finite_elements * quadrature_node_number shape {}."
 
+ORBITAL_COEFFICIENTS_SHAPE_ERROR_MESSAGE = \
+    "parameter 'field_values' (here the orbital coefficients) length {} does not match number of FE nodes excluding boundary nodes shape {}."
 
 # Warning messages
 V_LOCAL_COMPONENT_PSP_NOT_USED_IN_ALL_ELECTRON_CALCULATIONS_WARNING = \
@@ -1197,7 +1199,79 @@ class RadialOperatorsBuilder:
         """
         return self.get_global_interpolation_matrix()
 
+    def evaluate_orbitals_on_arbitrary_grid(
+        self,
+        given_grid : np.ndarray,
+        field_values: np.ndarray,
+    ) -> np.ndarray:
+        # Validate input: grid must be monotonically increasing
+        assert np.all(np.diff(given_grid) > 0.0), \
+            GIVEN_GRID_NOT_MONOTONICALLY_INCREASING_ERROR
 
+        # Validate input: grid must be within physical domain
+        assert np.all(given_grid >= self.physical_nodes[0]) and \
+               np.all(given_grid <= self.physical_nodes[-1]), \
+            GIVEN_GRID_NOT_WITHIN_PHYSICAL_NODES_ERROR
+    
+        assert field_values.shape[0] == (self.finite_element_number * (self.physical_node_number - 1) -1), \
+            ORBITAL_COEFFICIENTS_SHAPE_ERROR_MESSAGE.format(
+                field_values.shape[0], 
+                (self.finite_element_number * (self.physical_node_number - 1) -1)
+            )
+    
+        field_values = np.pad(field_values, ((1,1),(0,0)))
+        n_elem   = self.finite_element_number
+        n_basis  = self.physical_node_number
+     
+        orbitals_arbitrary_grid = np.zeros((len(given_grid), field_values.shape[1]))
+
+        for i in range(n_elem):
+            idx_FE      = np.arange(i*(n_basis - 1), (i + 1)*(n_basis - 1) + 1)
+            idx_uniform = (given_grid>=self.physical_nodes_reshaped[i:i+1,0]) & (given_grid<=self.physical_nodes_reshaped[i:i+1,-1])
+
+            basis_func_in_current_element, _ = LagrangeShapeFunctions.lagrange_basis_and_derivatives(
+                x_node=self.physical_nodes_reshaped[i:i+1,:],           
+                x_eval=given_grid[idx_uniform]  
+            )
+          
+            orbitals_arbitrary_grid[idx_uniform,:] = basis_func_in_current_element[0,:,:]@field_values[idx_FE, :]
+        return orbitals_arbitrary_grid 
+    
+    def evaluate_quantites_on_arbitrary_grid(
+        self,
+        given_grid : np.ndarray,
+        field_values: np.ndarray,
+    ) -> np.ndarray:
+        
+        # Validate input: grid must be monotonically increasing
+        assert np.all(np.diff(given_grid) > 0.0), \
+            GIVEN_GRID_NOT_MONOTONICALLY_INCREASING_ERROR
+
+        # Validate input: grid must be within physical domain
+        assert np.all(given_grid >= self.physical_nodes[0]) and \
+               np.all(given_grid <= self.physical_nodes[-1]), \
+            GIVEN_GRID_NOT_WITHIN_PHYSICAL_NODES_ERROR
+            
+        n_elem   = self.finite_element_number
+        n_quad   = self.quadrature_node_number
+        n_basis  = self.physical_node_number
+        
+        quantities_arbitrary_grid = np.zeros((len(given_grid), field_values.shape[1]))
+        field_values_coeffs_from_pseudoinverse = np.zeros((n_basis, field_values.shape[1]))
+        for i in range(n_elem):
+            #idx_FE      = np.arange(i*(n_basis - 1), (i + 1)*(n_basis - 1) + 1)
+            idx_uniform = (given_grid>=self.physical_nodes_reshaped[i:i+1,0]) & (given_grid<=self.physical_nodes_reshaped[i:i+1,-1])
+
+            basis_func_in_current_element, _ = LagrangeShapeFunctions.lagrange_basis_and_derivatives(
+                x_node = self.physical_nodes_reshaped[i:i+1,:],           
+                x_eval = given_grid[idx_uniform]  
+            )
+          
+            field_values_coeffs_from_pseudoinverse[:, :] = np.linalg.pinv(self.lagrange_basis[i])@(field_values[i*n_quad:(i+1)*n_quad, :])
+            quantities_arbitrary_grid[idx_uniform,:] = basis_func_in_current_element[0,:,:]@field_values_coeffs_from_pseudoinverse
+        return quantities_arbitrary_grid
+        
+    
     def evaluate_single_field_on_grid(
         self,
         given_grid : np.ndarray,

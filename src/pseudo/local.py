@@ -330,6 +330,7 @@ class LocalPseudopotential:
         assert os.path.exists(os.path.join(path, filename)), \
             PSEUDOPOTENTIAL_FILENAME_DOES_NOT_EXIST_ERROR.format(filename)
         
+        
         # Read pseudopotential file
         psp_data = read_pseudopotential_file(
             psp_dir_path  = path,

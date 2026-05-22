@@ -419,6 +419,8 @@ NUMBER_OF_FINITE_ELEMENTS_DEPRECATED_WARNING = \
 FINITE_ELEMENT_NUMBER_AND_NUMBER_OF_FINITE_ELEMENTS_BOTH_SPECIFIED_ERROR = \
     "Cannot specify both 'finite_element_number' and deprecated 'number_of_finite_elements'. Use 'finite_element_number' only."
 
+ORBITAL_COEFFICIENTS_CORRECTNESS_ERROR = \
+    "orbital coefficients interpolated on the quadrature grid does not match the output orbitals on quadrature grid"
 
 def get_sparc_time_string() -> str:
     """
@@ -1743,6 +1745,71 @@ class AtomicDFTSolver:
         return uniform_eval_grid, orbitals_on_given_grid
 
 
+    def _evaluate_basis_on_arbitrary_grid(
+        self, 
+        ops_builder_standard: RadialOperatorsBuilder,
+        orbitals: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Evaluate all orbitals on a uniform evaluation grid.
+        
+        This function generates a uniform grid spanning the domain and evaluates
+        each orbital state on that grid using Lagrange interpolation. The result
+        is useful for:
+        - Visualization and analysis (uniform spacing for plotting)
+        - Output formatting (matching reference data formats)
+        - Further post-processing (interpolation to different grids)
+        
+        Parameters
+        ----------
+        ops_builder_standard : RadialOperatorsBuilder
+            Operators builder containing mesh information and interpolation methods.
+            Used to evaluate orbitals on the given grid using finite element basis functions.
+        orbitals : np.ndarray
+            Orbital coefficients at physical nodes, shape (n_physical_nodes, n_states).
+            Each column represents one orbital state (eigenvector).
+        
+        Returns
+        -------
+        orbitals_on_given_grid : np.ndarray
+            Orbital values evaluated on the uniform grid, shape (n_grid_points, n_states).
+            Each column contains the values of one orbital state on the uniform grid.
+        
+        Notes
+        -----
+        - The uniform grid is generated with spacing `self.mesh_spacing` over `[0, domain_size]`.
+        - Each orbital is evaluated independently using `evaluate_single_field_on_grid`.
+        - The evaluation uses Lagrange polynomial interpolation within each finite element.
+        
+        Example
+        -------
+        >>> uniform_grid_values = solver._evaluate_basis_on_uniform_grid(
+        ...     ops_builder_standard=ops_builder,
+        ...     orbitals=eigenvectors  # shape: (n_nodes, n_states)
+        ... )
+        >>> # uniform_grid_values.shape = (n_grid_points, n_states)
+        """
+        # Generate uniform evaluation grid with specified spacing
+        uniform_eval_grid = np.linspace(
+            start=0.0, 
+            stop=self.domain_size, 
+            num=int(self.domain_size / self.mesh_spacing) + 1, 
+            endpoint=True
+        )
+
+        # Evaluate each orbital state on the uniform grid
+        n_states     = orbitals.shape[1]
+        n_grid_given = len(uniform_eval_grid)
+        orbitals_on_given_grid = np.zeros((n_grid_given, n_states))
+
+        
+            # Evaluate single orbital on the uniform grid using Lagrange interpolation
+        orbitals_on_given_grid[:, :] = ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+                given_grid   = uniform_eval_grid,
+                field_values = orbitals[:, :]
+        )    
+        return uniform_eval_grid, orbitals_on_given_grid
+
     def _get_initial_density_and_orbitals_with_warm_start(
         self, 
         xc_functional    : str, 
@@ -1934,6 +2001,12 @@ class AtomicDFTSolver:
             ops_builder_standard = self.ops_builder_standard,
             orbitals             = orbitals
         )
+        
+        # evaluate rho on uniform grid
+        rho_on_uniform_grid = self.ops_builder_standard.evaluate_basis_on_uniform_grid(
+            given_grid   = uniform_grid,
+            field_values = rho,
+        )
 
         # evaluate local potentials on uniform grid
         v_x_local_on_uniform_grid = self.ops_builder_standard.evaluate_single_field_on_grid(
@@ -1981,6 +2054,7 @@ class AtomicDFTSolver:
         final_result = {
             'eigen_energies'            : None,                      # Not computed in forward pass
             'orbitals'                  : orbitals,                  # Input orbitals
+            'orbital_coefficients'      : orbital_coefficients,     
             'rho'                       : density_data_valence.rho,  # Valence density
             'density_data'              : density_data_valence,      # Density data without NLCC
             'rho_nlcc'                  : rho_nlcc,                  # Non-linear core correction density
@@ -1999,6 +2073,7 @@ class AtomicDFTSolver:
             'e_c_local'                 : e_c_local,                 # Local XC energy density
             'uniform_grid'              : uniform_grid,              # Uniform grid
             'orbitals_on_uniform_grid'  : orbitals_on_uniform_grid,  # Orbitals on uniform grid
+            'rho_on_uniform_grid'       : rho_on_uniform_grid,       # Occupied orbitals density on uniform grid (valence density in case of pseudopotential calculation)
             'v_x_local_on_uniform_grid' : v_x_local_on_uniform_grid, # Local XC potential on uniform grid
             'v_c_local_on_uniform_grid' : v_c_local_on_uniform_grid, # Local XC potential on uniform grid
             'e_x_local_on_uniform_grid' : e_x_local_on_uniform_grid, # Local XC energy density on uniform grid
@@ -2021,7 +2096,7 @@ class AtomicDFTSolver:
         rho_initial        : Optional[np.ndarray] = None,
         orbitals_initial   : Optional[np.ndarray] = None,
         use_warm_start     : bool = True,
-        evaluate_basis_on_uniform_grid: bool = False,
+        evaluate_basis_on_uniform_grid: bool = True,
     ) -> Dict[str, Any]:
         """
         Solve the Kohn-Sham equations using modular SCF architecture.
@@ -2177,7 +2252,8 @@ class AtomicDFTSolver:
             full_l_terms           = scf_result.full_l_terms,
             enable_parallelization = self.enable_parallelization,
         )
-
+        
+        t00 = time.time()
         # Phase 5: Evaluate basis functions on uniform grid (optional)
         if evaluate_basis_on_uniform_grid:
             uniform_grid, orbitals_on_uniform_grid = self._evaluate_basis_on_uniform_grid(
@@ -2199,6 +2275,7 @@ class AtomicDFTSolver:
             v_x_local_on_uniform_grid = None
             v_c_local_on_uniform_grid = None
 
+        
         # Phase 6: Compute final energy density
         if save_energy_density:
             e_x_local, e_c_local = self.energy_calculator.compute_local_xc_energy_density(
@@ -2225,6 +2302,92 @@ class AtomicDFTSolver:
             e_x_local, e_c_local = None, None
             e_x_local_on_uniform_grid, e_c_local_on_uniform_grid = None, None
         
+        t11 = time.time()
+        
+        t22 = time.time()
+        
+        # Phase 5: Evaluate basis functions on uniform grid (optional)
+        if evaluate_basis_on_uniform_grid:
+            uniform_grid2, orbitals_on_uniform_grid2 = self._evaluate_basis_on_arbitrary_grid(
+                ops_builder_standard = self.ops_builder_standard,
+                orbitals             = scf_result.orbitals
+            )
+
+            v_x_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+                given_grid   = uniform_grid2,
+                field_values = v_x_local[:,None],
+            )
+            v_x_local_on_uniform_grid2 = v_x_local_on_uniform_grid2.reshape(-1,)
+            v_c_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+                given_grid   = uniform_grid2,
+                field_values = v_c_local[:, None],
+            )
+            v_c_local_on_uniform_grid2 = v_c_local_on_uniform_grid2.reshape(-1,)
+        else:
+            uniform_grid2 = None
+            orbitals_on_uniform_grid2 = None
+            v_x_local_on_uniform_grid2 = None
+            v_c_local_on_uniform_grid2 = None
+
+        # Phase 6: Compute final energy density
+        if save_energy_density:
+            e_x_local, e_c_local = self.energy_calculator.compute_local_xc_energy_density(
+                density_data           = scf_result.density_data,
+                full_eigen_energies    = scf_result.full_eigen_energies,
+                full_orbitals          = scf_result.full_orbitals,
+                full_l_terms           = scf_result.full_l_terms,
+                enable_parallelization = self.enable_parallelization,
+            )
+
+            if evaluate_basis_on_uniform_grid:
+                e_x_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+                    given_grid   = uniform_grid2,
+                    field_values = e_x_local[:, None],
+                )
+                e_x_local_on_uniform_grid2 = e_x_local_on_uniform_grid2.reshape(-1,)
+                e_c_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+                    given_grid   = uniform_grid2,
+                    field_values = e_c_local[:, None],
+                )
+                e_c_local_on_uniform_grid2 = e_c_local_on_uniform_grid2.reshape(-1,)
+            else:
+                e_x_local_on_uniform_grid2 = None
+                e_c_local_on_uniform_grid2 = None
+        else:
+            e_x_local2, e_c_local2 = None, None
+            e_x_local_on_uniform_grid2, e_c_local_on_uniform_grid2 = None, None
+        
+        t33 = time.time()
+        
+        print("check_orbitals_pseudoinverse:", np.max(np.abs(orbitals_on_uniform_grid - orbitals_on_uniform_grid2)))
+        print("check_vx_local_pseudoinverse:", np.max(np.abs(v_x_local_on_uniform_grid - v_x_local_on_uniform_grid2)))
+        print("check_vc_local_pseudoinverse:", np.max(np.abs(v_c_local_on_uniform_grid - v_c_local_on_uniform_grid2)))
+      #  print("check_ex_local_pseudoinverse:", np.max(np.abs(e_x_local_on_uniform_grid - e_x_local_on_uniform_grid2)))
+      #  print("check_ec_local_pseudoinverse:", np.max(np.abs(e_c_local_on_uniform_grid - e_c_local_on_uniform_grid2)))
+        
+        print("time _for_loop:", t11 - t00)
+        print("time_vectorized:",t33-t22)
+
+
+        check1 = self.hamiltonian_builder.interpolate_eigenvectors_to_quadrature(
+                eigenvectors = scf_result.orbital_coefficients,
+                symmetrize   = False,
+                pad_width    = 1,
+            )
+
+        orbitals_on_uniform_grid = self.ops_builder_standard.evaluate_orbitals_on_arbitrary_grid(
+                given_grid   = uniform_grid,
+                field_values = scf_result.orbital_coefficients,
+            )
+        
+        assert np.max(np.abs(check1 - scf_result.orbitals)) < 1e-12 ,\
+            ORBITAL_COEFFICIENTS_CORRECTNESS_ERROR    
+            
+            
+            
+            
+            
+        
         # Print debug information
         if self.verbose:
             energy_components.print_info(title = f"Total Energy ({self.xc_functional})")
@@ -2236,10 +2399,12 @@ class AtomicDFTSolver:
             print()
             self.print_footer()
 
+
         # Phase 7: Pack and return results
         final_result = {
             'eigen_energies'            : scf_result.eigen_energies,
             'orbitals'                  : scf_result.orbitals,
+            'orbital_coefficients'      : scf_result.orbital_coefficients,
             'rho'                       : scf_result.density_data.rho,  # Interpolate over psi and calculate rho at that site
             'density_data'              : scf_result.density_data,
             'rho_nlcc'                  : rho_nlcc,

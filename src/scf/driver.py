@@ -500,6 +500,7 @@ class OuterIterationInfo:
     iterations          : int
     eigen_energies      : np.ndarray
     orbitals            : np.ndarray
+    orbital_coefficients: np.ndarray
     density_data        : DensityData
     full_eigen_energies : Optional[np.ndarray]
     full_orbitals       : Optional[np.ndarray]
@@ -638,6 +639,7 @@ class IntermediateInfo:
             iterations          = inner_result.iterations,
             eigen_energies      = inner_result.eigen_energies.copy(),
             orbitals            = inner_result.orbitals.copy(),
+            orbital_coefficients= inner_result.orbital_coefficients.copy(),
             density_data        = copy.deepcopy(inner_result.density_data),  # Deep copy to avoid reference issues
             full_eigen_energies = inner_result.full_eigen_energies.copy() if inner_result.full_eigen_energies is not None else None,
             full_orbitals       = inner_result.full_orbitals.copy()       if inner_result.full_orbitals       is not None else None,
@@ -805,6 +807,7 @@ class SCFResult:
     # Core results
     eigen_energies : np.ndarray
     orbitals       : np.ndarray
+    orbital_coefficients : np.ndarray
     density_data   : DensityData
     
     # Inner loop convergence info
@@ -1749,6 +1752,7 @@ class SCFDriver:
                 pad_width    = 1,
             )
             
+           
             # ===== Step 3: Compute new density =====
             # Compute new density from orbitals
             rho_new = self.density_calculator.compute_density(occ_orbitals, normalize=True)
@@ -1854,6 +1858,7 @@ class SCFDriver:
         result = SCFResult(
             eigen_energies      = occ_eigenvalues,
             orbitals            = occ_orbitals,
+            orbital_coefficients= occ_eigenvectors,
             density_data        = final_density_data,
             converged           = converged,
             iterations          = iteration + 1,
@@ -2023,6 +2028,7 @@ class SCFDriver:
         outer_result = SCFResult(
             eigen_energies      = inner_result.eigen_energies,
             orbitals            = inner_result.orbitals,
+            orbital_coefficients= inner_result.orbital_coefficients,
             density_data        = inner_result.density_data,
             converged           = outer_converged,
             iterations          = outer_iterations,

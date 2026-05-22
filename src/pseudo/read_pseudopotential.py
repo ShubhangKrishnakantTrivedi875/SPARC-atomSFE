@@ -37,7 +37,10 @@ def read_pseudopotential_file(
 ):
 
     pseudopotential_filename = os.path.join(psp_dir_path, psp_file_name)
-
+    print("\n")
+    print("psp_file_path:", psp_dir_path)
+    print("psp_file_name:", psp_file_name)
+    print("\n")
     with open(pseudopotential_filename,"r") as psp:
         # Read all lines from the file
         lines = psp.readlines()
