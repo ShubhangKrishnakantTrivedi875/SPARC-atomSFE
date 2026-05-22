@@ -1749,7 +1749,7 @@ class AtomicDFTSolver:
         self, 
         ops_builder_standard: RadialOperatorsBuilder,
         orbitals: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray, list, np.ndarray]:
         """
         Evaluate all orbitals on a uniform evaluation grid.
         
@@ -1804,11 +1804,13 @@ class AtomicDFTSolver:
 
         
             # Evaluate single orbital on the uniform grid using Lagrange interpolation
-        orbitals_on_given_grid[:, :] = ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
+        orbitals_on_given_grid[:, :], basis_funcs_evaluated_on_arbitrary_grid = ops_builder_standard.evaluate_orbitals_on_arbitrary_grid(
                 given_grid   = uniform_eval_grid,
-                field_values = orbitals[:, :]
+                field_values = orbitals[:, :],
         )    
-        return uniform_eval_grid, orbitals_on_given_grid
+        
+        basis_pseudoinverse = ops_builder_standard.construct_pseudoinverse_lagrange_basis()
+        return uniform_eval_grid, orbitals_on_given_grid, basis_funcs_evaluated_on_arbitrary_grid, basis_pseudoinverse
 
     def _get_initial_density_and_orbitals_with_warm_start(
         self, 
@@ -2308,19 +2310,23 @@ class AtomicDFTSolver:
         
         # Phase 5: Evaluate basis functions on uniform grid (optional)
         if evaluate_basis_on_uniform_grid:
-            uniform_grid2, orbitals_on_uniform_grid2 = self._evaluate_basis_on_arbitrary_grid(
+            uniform_grid2, orbitals_on_uniform_grid2, basis_func_evaluated_on_arbitrary_grid_dict, basis_pseudoinverse = self._evaluate_basis_on_arbitrary_grid(
                 ops_builder_standard = self.ops_builder_standard,
-                orbitals             = scf_result.orbitals
+                orbitals             = scf_result.orbital_coefficients
             )
 
             v_x_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
                 given_grid   = uniform_grid2,
                 field_values = v_x_local[:,None],
+                basis_func_evaluated_on_arbitrary_grid_dict = basis_func_evaluated_on_arbitrary_grid_dict,
+                basis_pseudoinverse= basis_pseudoinverse
             )
             v_x_local_on_uniform_grid2 = v_x_local_on_uniform_grid2.reshape(-1,)
             v_c_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
                 given_grid   = uniform_grid2,
                 field_values = v_c_local[:, None],
+                basis_func_evaluated_on_arbitrary_grid_dict = basis_func_evaluated_on_arbitrary_grid_dict,
+                basis_pseudoinverse= basis_pseudoinverse
             )
             v_c_local_on_uniform_grid2 = v_c_local_on_uniform_grid2.reshape(-1,)
         else:
@@ -2343,11 +2349,15 @@ class AtomicDFTSolver:
                 e_x_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
                     given_grid   = uniform_grid2,
                     field_values = e_x_local[:, None],
+                    basis_func_evaluated_on_arbitrary_grid_dict = basis_func_evaluated_on_arbitrary_grid_dict,
+                    basis_pseudoinverse= basis_pseudoinverse
                 )
                 e_x_local_on_uniform_grid2 = e_x_local_on_uniform_grid2.reshape(-1,)
                 e_c_local_on_uniform_grid2 = self.ops_builder_standard.evaluate_quantites_on_arbitrary_grid(
                     given_grid   = uniform_grid2,
                     field_values = e_c_local[:, None],
+                    basis_func_evaluated_on_arbitrary_grid_dict = basis_func_evaluated_on_arbitrary_grid_dict,
+                    basis_pseudoinverse= basis_pseudoinverse
                 )
                 e_c_local_on_uniform_grid2 = e_c_local_on_uniform_grid2.reshape(-1,)
             else:
@@ -2359,15 +2369,15 @@ class AtomicDFTSolver:
         
         t33 = time.time()
         
-        print("check_orbitals_pseudoinverse:", np.max(np.abs(orbitals_on_uniform_grid - orbitals_on_uniform_grid2)))
-        print("check_vx_local_pseudoinverse:", np.max(np.abs(v_x_local_on_uniform_grid - v_x_local_on_uniform_grid2)))
-        print("check_vc_local_pseudoinverse:", np.max(np.abs(v_c_local_on_uniform_grid - v_c_local_on_uniform_grid2)))
-      #  print("check_ex_local_pseudoinverse:", np.max(np.abs(e_x_local_on_uniform_grid - e_x_local_on_uniform_grid2)))
-      #  print("check_ec_local_pseudoinverse:", np.max(np.abs(e_c_local_on_uniform_grid - e_c_local_on_uniform_grid2)))
-        
-        print("time _for_loop:", t11 - t00)
-        print("time_vectorized:",t33-t22)
-
+        if evaluate_basis_on_uniform_grid == True:
+            print("check_orbitals_pseudoinverse:", np.max(np.abs(orbitals_on_uniform_grid - orbitals_on_uniform_grid2)))
+            print("check_vx_local_pseudoinverse:", np.max(np.abs(v_x_local_on_uniform_grid - v_x_local_on_uniform_grid2)))
+            print("check_vc_local_pseudoinverse:", np.max(np.abs(v_c_local_on_uniform_grid - v_c_local_on_uniform_grid2)))
+        #  print("check_ex_local_pseudoinverse:", np.max(np.abs(e_x_local_on_uniform_grid - e_x_local_on_uniform_grid2)))
+        #  print("check_ec_local_pseudoinverse:", np.max(np.abs(e_c_local_on_uniform_grid - e_c_local_on_uniform_grid2)))
+            
+            print("time _for_loop:", t11 - t00)
+            print("time_vectorized:",t33-t22)
 
         check1 = self.hamiltonian_builder.interpolate_eigenvectors_to_quadrature(
                 eigenvectors = scf_result.orbital_coefficients,
@@ -2375,10 +2385,7 @@ class AtomicDFTSolver:
                 pad_width    = 1,
             )
 
-        orbitals_on_uniform_grid = self.ops_builder_standard.evaluate_orbitals_on_arbitrary_grid(
-                given_grid   = uniform_grid,
-                field_values = scf_result.orbital_coefficients,
-            )
+        
         
         assert np.max(np.abs(check1 - scf_result.orbitals)) < 1e-12 ,\
             ORBITAL_COEFFICIENTS_CORRECTNESS_ERROR    
@@ -2399,7 +2406,14 @@ class AtomicDFTSolver:
             print()
             self.print_footer()
 
-
+        pseudopotential_info = None
+        if self.all_electron_flag == False:
+            pseudopotential_info = self.pseudo
+            print(pseudopotential_info )
+        #pseudopotential_info['r_grid_Vloc'] = self.pseudo.r_grid_local
+        #pseudopotential_info['rc_max_list'] = self.pseudo.r_cutoff_max_per_l
+        #pseudopotential_info['nl_info']     = self.pseudo.nonlocal_projectors
+        
         # Phase 7: Pack and return results
         final_result = {
             'eigen_energies'            : scf_result.eigen_energies,
@@ -2417,6 +2431,7 @@ class AtomicDFTSolver:
             'quadrature_nodes'          : self.grid_data_standard.quadrature_nodes,   # Global quadrature nodes
             'quadrature_weights'        : self.grid_data_standard.quadrature_weights, # Global quadrature weights
             'occupation_info'           : self.occupation_info,
+            'pseudopotential_info'      : pseudopotential_info,
             'v_x_local'                 : v_x_local,
             'v_c_local'                 : v_c_local,
             'e_x_local'                 : e_x_local,

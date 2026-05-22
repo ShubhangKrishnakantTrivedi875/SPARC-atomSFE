@@ -163,6 +163,7 @@ def read_pseudopotential_file(
         for l in range(lmax+1):
             r_core_read = float(l1_split[0][l+3])
             rc_max = r_core_read
+            rc_max_list[l] = rc_max
             if l != lloc:
                 ''' % check if r_core is large enough s.t. |proj| < 1E-8'''
                 r_indx_all = np.where(r < r_core_read)
@@ -171,13 +172,12 @@ def read_pseudopotential_file(
                     try:
                         # GT reader: +10 mesh-point buffer past first |proj| < 1e-8 (see module note above).
                         # Diff vs old delta: was ``... [0][0] - 1``.
-                        rc_temp = r[r_indx +np.where(np.absolute(Pot[l]['proj'][r_indx+1:,i])<(1e-8))[0][0]+10]
+                        rc_temp = r[r_indx +np.where(np.absolute(Pot[l]['proj'][r_indx+1:,i])<(1e-8))[0][0]]
                     except:
                         rc_temp = r[-1]
                     if rc_temp>rc_max:
                         rc_max = rc_temp
                       
-                    rc_max_list[l] = rc_max
                 if verbose:
                     print("atom type {first}, l = {second}, r_core_read {third}, change to rmax where |UdV| < (1e-8), {fourth} \n".format(first = 1, second = l, third = r_core_read, fourth = rc_max)) 
             if rc_max > rc: 

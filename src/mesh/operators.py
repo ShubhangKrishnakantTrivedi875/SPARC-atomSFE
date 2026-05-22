@@ -1199,11 +1199,22 @@ class RadialOperatorsBuilder:
         """
         return self.get_global_interpolation_matrix()
 
+    def construct_pseudoinverse_lagrange_basis(
+        self,
+    ) -> np.ndarray:
+    
+        basis_pseudoinverse = np.zeros((self.finite_element_number, self.physical_node_number, self.quadrature_node_number))
+        for i in range(0,self.finite_element_number):
+            basis_pseudoinverse[i,:,:] = np.linalg.pinv(self.lagrange_basis[i])
+        
+        return basis_pseudoinverse
+            
+
     def evaluate_orbitals_on_arbitrary_grid(
         self,
         given_grid : np.ndarray,
         field_values: np.ndarray,
-    ) -> np.ndarray:
+    ) -> Tuple[np.ndarray, list]:
         # Validate input: grid must be monotonically increasing
         assert np.all(np.diff(given_grid) > 0.0), \
             GIVEN_GRID_NOT_MONOTONICALLY_INCREASING_ERROR
@@ -1224,7 +1235,7 @@ class RadialOperatorsBuilder:
         n_basis  = self.physical_node_number
      
         orbitals_arbitrary_grid = np.zeros((len(given_grid), field_values.shape[1]))
-
+        basis_func_evaluated_on_arbitrary_grid_dict = []
         for i in range(n_elem):
             idx_FE      = np.arange(i*(n_basis - 1), (i + 1)*(n_basis - 1) + 1)
             idx_uniform = (given_grid>=self.physical_nodes_reshaped[i:i+1,0]) & (given_grid<=self.physical_nodes_reshaped[i:i+1,-1])
@@ -1233,14 +1244,17 @@ class RadialOperatorsBuilder:
                 x_node=self.physical_nodes_reshaped[i:i+1,:],           
                 x_eval=given_grid[idx_uniform]  
             )
-          
+
             orbitals_arbitrary_grid[idx_uniform,:] = basis_func_in_current_element[0,:,:]@field_values[idx_FE, :]
-        return orbitals_arbitrary_grid 
+            basis_func_evaluated_on_arbitrary_grid_dict.append(basis_func_in_current_element)
+        return orbitals_arbitrary_grid, basis_func_evaluated_on_arbitrary_grid_dict  
     
     def evaluate_quantites_on_arbitrary_grid(
         self,
         given_grid : np.ndarray,
         field_values: np.ndarray,
+        basis_func_evaluated_on_arbitrary_grid_dict: list,
+        basis_pseudoinverse: np.ndarray,
     ) -> np.ndarray:
         
         # Validate input: grid must be monotonically increasing
@@ -1262,13 +1276,8 @@ class RadialOperatorsBuilder:
             #idx_FE      = np.arange(i*(n_basis - 1), (i + 1)*(n_basis - 1) + 1)
             idx_uniform = (given_grid>=self.physical_nodes_reshaped[i:i+1,0]) & (given_grid<=self.physical_nodes_reshaped[i:i+1,-1])
 
-            basis_func_in_current_element, _ = LagrangeShapeFunctions.lagrange_basis_and_derivatives(
-                x_node = self.physical_nodes_reshaped[i:i+1,:],           
-                x_eval = given_grid[idx_uniform]  
-            )
-          
-            field_values_coeffs_from_pseudoinverse[:, :] = np.linalg.pinv(self.lagrange_basis[i])@(field_values[i*n_quad:(i+1)*n_quad, :])
-            quantities_arbitrary_grid[idx_uniform,:] = basis_func_in_current_element[0,:,:]@field_values_coeffs_from_pseudoinverse
+            field_values_coeffs_from_pseudoinverse[:, :] = basis_pseudoinverse[i,:,:]@(field_values[i*n_quad:(i+1)*n_quad, :])
+            quantities_arbitrary_grid[idx_uniform,:] = basis_func_evaluated_on_arbitrary_grid_dict[i]@field_values_coeffs_from_pseudoinverse
         return quantities_arbitrary_grid
         
     
