@@ -15,10 +15,9 @@ common_path = "/storage/home/hcoda1/5/strivedi44/r-phanish6-0/PSEUDOPOTENTIAL_AC
 suffix1     = "psp_accuracy"
 suffix2     = "SPMS_SG15"
 json_path   = common_path + "/" + suffix1 + "/" + suffix2 + "/" + suffix1 +"_" + suffix2 +".json"   
-savefig     = 1
-
+savefig     = 0
 Z_all = np.r_[np.arange(1,58), np.arange(72, 84)]
-Z_all = np.array([6])
+Z_all = np.array([3])
 
 xc_functional_psp_type = [('PBE', 'SPMS'), ('rSCAN', 'SG15'),  ('PBE0_0.25', 'SPMS'), 
                           ('PBE0_0.5', 'SPMS'), ('PBE0_0.75', 'SPMS'), ('PBE0_1', 'SPMS')]
@@ -507,6 +506,7 @@ for atom in range(len(Z_all)):
                    ae_log_derivative_FEM = ae_grad_orbital_value_FEM / ae_orbital_value_FEM
                    D.nl[n, l].ae_log_derivative_FEM = ae_log_derivative_FEM[0][0]
                    
+                   
                    psps_FEM_nodes_current_element = psps_FEM_node_crucial[l, :]
                    assert ((rc_l > psps_FEM_nodes_current_element[0]) & (rc_l < psps_FEM_nodes_current_element[-1]))
                    psps_orbital_coefficients_current_element   = psps_orbital_coefficients[psps_FEM_node_idx_crucial[l, :], i]
@@ -544,8 +544,19 @@ for atom in range(len(Z_all)):
         print(" ")
         print(" ")
         D.Check6_max_abs_error_log_derivative_FEM = max_log_derivative_error_FEM
-
-
+        assert(np.abs(max_log_derivative_error_FEM - max_log_derivative_error_spline) < 1e-3 * min(max_log_derivative_error_FEM, max_log_derivative_error_spline))
+        
+        for i in range(len(log_der_rows_FEM)):
+            psps_log_der_FEM1 = log_der_rows_FEM[i]['psps_log_der_FEM']
+            ae_log_der_FEM1   = log_der_rows_FEM[i]['ae_log_der_FEM']
+            
+            psps_log_der_spline1 = log_der_rows_spline[i]['psps_log_der_spline']
+            ae_log_der_spline1   = log_der_rows_spline[i]['ae_log_der_spline']
+            
+            assert(np.abs(psps_log_der_FEM1 - psps_log_der_spline1) < 1e-3 * min(abs(psps_log_der_FEM1), abs(psps_log_der_spline1)))
+            assert(np.abs(ae_log_der_FEM1   - ae_log_der_spline1) < 1e-3 * min(abs(ae_log_der_FEM1), abs(ae_log_der_spline1)))
+            assert(np.abs((ae_log_der_FEM1   - psps_log_der_FEM1) - (ae_log_der_spline1   - psps_log_der_spline1))  < 1e-3 * min(abs((ae_log_der_FEM1   - psps_log_der_FEM1)), abs((ae_log_der_spline1   - psps_log_der_spline1))))
+           
 
         # ── Check 7: log-derivative at all points using finite element derivate matrix multiplying orbital coefficients──
         log_der_rows = []   # list of dicts {n, l, logder_psp, logder_ae, diff}
@@ -702,7 +713,7 @@ for atomic_number, elem_data in S.atm.items():
     checks = [
               ("Check1_max_diff_eigenvalues",                "Check 1: Eigenvalues"),
               ("Check2_max_diff_orbitals",                   "Check 2: Orbitals agreement beyond rc"),
-              ("Check3_max_diff_density",                    "Check 3: Density agreemenet beyond rc"),
+              ("Check3_norm_diff_density",                   "Check 3: Density agreement beyond rc"),
               ("Check4_orbital_norm_conservation_error",     "Check 4: Norm conservation within rc"),
               ("Check5_max_abs_error_log_derivative_spline", "Check 5: Log-derivative at rc using Spline"),
              ]
@@ -723,7 +734,9 @@ for atomic_number, elem_data in S.atm.items():
         plt.title("Z = "+ str(atomic_number) + " " + element + ", " +Title_check_name)
         #plt.xlabel("XC and psp_types")
         plt.margins(y=0.1)
-        if check == "Check4_orbital_norm_conservation_error":
+        if check == "Check3_norm_diff_density":
+            plt.ylabel("Relative L2-norm error")
+        elif check == "Check4_orbital_norm_conservation_error":
             plt.ylabel("Relative integral norm error")
         else:
             plt.ylabel("Max absolute error")
@@ -735,6 +748,55 @@ for atomic_number, elem_data in S.atm.items():
         plt.close(figure)
 
 
+for atomic_number, elem_data in S.atm.items():
+    element = elem_data.element
+
+    checks = [
+        ("Check1_max_diff_eigenvalues",                "Check 1: Eigenvalues"),
+        ("Check2_max_diff_orbitals",                   "Check 2: Orbitals agreement beyond rc"),
+        ("Check3_norm_diff_density",                   "Check 3: Density agreement beyond rc"),
+        ("Check4_orbital_norm_conservation_error",     "Check 4: Norm conservation within rc"),
+        ("Check5_max_abs_error_log_derivative_spline", "Check 5: Log-derivative at rc using Spline"),
+    ]
+
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    axes_flat = axes.flatten()
+
+    for i, (check, Title_check_name) in enumerate(checks):
+        ax = axes_flat[i]
+
+        values, categories = [], []
+        for (xc, psp), D_info in elem_data.xc_psp.items():
+            categories.append(f"{xc}\n{psp}")
+            values.append(getattr(D_info, check, None))
+
+        bars = ax.bar(categories, values)
+        ax.bar_label(bars, fmt='%.2e', padding=3)
+        ax.set_title(Title_check_name)
+        ax.margins(y=0.15)
+
+        if check == "Check3_norm_diff_density":
+            ax.set_ylabel("Relative L2-norm error")
+        elif check == "Check4_orbital_norm_conservation_error":
+            ax.set_ylabel("Relative integral norm error")
+        else:
+            ax.set_ylabel("Max absolute error")
+
+    # Hide the unused 6th subplot in the 2×3 grid
+    axes_flat[5].axis('off')
+
+    fig.suptitle(f"Z = {atomic_number}  {element}", fontsize=16, fontweight='bold')
+    plt.tight_layout()
+
+    if savefig == 1:
+        plt.savefig(
+            f'{common_path}/{atomic_number:02d}_{element}_data/{suffix1}/{suffix2}/{atomic_number:02d}_{element}_summary.pdf',
+            bbox_inches='tight',
+            dpi=600,
+        )
+
+    plt.show()
+    plt.close(fig)
 
 '''PRINTING TABLE'''
 # ── Per-element summary table (read straight from S.atm[atomic_number].xc_psp) ──
@@ -745,7 +807,7 @@ ALL_XC_PSP_FOR_PRINT = [('PBE', 'SPMS'), ('rSCAN', 'SG15'),
 CHECK_FIELDS = [
     ('Check 1', 'Check1_max_diff_eigenvalues'),
     ('Check 2', 'Check2_max_diff_orbitals'),
-    ('Check 3', 'Check3_max_diff_density'),
+    ('Check 3', 'Check3_norm_diff_density'),
     ('Check 4', 'Check4_orbital_norm_conservation_error'),
     ('Check 5', 'Check5_max_abs_error_log_derivative_spline'),
 ]

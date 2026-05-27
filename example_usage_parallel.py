@@ -11,11 +11,11 @@ import pandas as pd
 SUBFOLDERS    = ['PBE', 'rSCAN', 'PBE0_0.25', 'PBE0_0.5', 'PBE0_0.75', 'PBE0_1', 'RPA']
 #SUBSUBFOLDERS = ['All_electron', 'PseudoDojo_standard', 'PseudoDojo_stringent', 'SG15', 'SPMS']
 
-SUBFOLDERS     = ['PBE0_0.5']
+SUBFOLDERS     = ['PBE']
 SUBSUBFOLDERS  = ['SPMS']
 
 Z_all = np.r_[np.arange(1,58), np.arange(72, 84)]
-Z_all = np.array([40, 41, 42, 72, 73, 74])
+#Z_all = np.array([40, 41, 42, 72, 73, 74])
 #Z_all = np.array([22,23,24,25,26,27,28])
 
 N_WORKERS = 8   # set to number of CPUs you want to use
