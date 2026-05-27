@@ -177,7 +177,7 @@ def read_pseudopotential_file(
                         rc_temp = r[-1]
                     if rc_temp>rc_max:
                         rc_max = rc_temp
-                      
+                    
                 if verbose:
                     print("atom type {first}, l = {second}, r_core_read {third}, change to rmax where |UdV| < (1e-8), {fourth} \n".format(first = 1, second = l, third = r_core_read, fourth = rc_max)) 
             if rc_max > rc: 
