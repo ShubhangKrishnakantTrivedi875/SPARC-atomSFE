@@ -1,0 +1,277 @@
+=== BLAS config BEFORE limits===
+[{'filepath': '/home/strivedi44/.conda/envs/krr_env/lib/libmkl_rt.so.2',
+  'internal_api': 'mkl',
+  'num_threads': 6,
+  'prefix': 'libmkl_rt',
+  'threading_layer': 'intel',
+  'user_api': 'blas',
+  'version': '2025.0-Product'},
+ {'filepath': '/home/strivedi44/.conda/envs/krr_env/lib/libiomp5.so',
+  'internal_api': 'openmp',
+  'num_threads': 12,
+  'prefix': 'libiomp',
+  'user_api': 'openmp',
+  'version': None}]
+===========================================================================
+*                  SPARC-atomSFE  (version May 28, 2026)                  *
+*   Copyright (c) 2026 Material Physics & Mechanics Group, Georgia Tech   *
+*                   Start time: Wed Jun 24 19:30:45 2026                  *
+===========================================================================
+                              INPUT PARAMETERS                             
+===========================================================================
+	 atomic_number                     : 4    (Be)
+	 n_electrons                       : 4   
+	 all_electron_flag                 : False
+	 xc_functional                     : RPA
+	 use_oep                           : True
+	 domain_size                       : 13.0
+	 finite_element_number             : 30
+	 polynomial_order                  : 15
+	 quadrature_point_number           : 55
+	 oep_basis_number                  : 4
+	 mesh_type                         : polynomial
+	 mesh_concentration                : 2.0
+	 mesh_spacing                      : 0.1
+	 scf_tolerance                     : 1e-08
+	 max_scf_iterations                : 500
+	 max_scf_iterations_outer          : 50
+	 use_pulay_mixing                  : True
+	 use_preconditioner                : False
+	 pulay_mixing_parameter            : 0.45
+	 pulay_mixing_history              : 11
+	 pulay_mixing_frequency            : 1
+	 linear_mixing_alpha1              : 0.75
+	 linear_mixing_alpha2              : 0.95
+	 psp_dir_path                      : psps
+	 psp_file_name                     : 04.psp8
+	 hybrid_mixing_parameter           : 1.0
+	 frequency_quadrature_point_number : 40
+	 angular_momentum_cutoff           : 18
+	 oep_mixing_parameter              : 1.0
+	 enable_parallelization            : True
+
+===========================================================================
+                   PSEUDOPOTENTIAL INFORMATION                             
+===========================================================================
+  Valence Charge             (z_valence)             : 4.0
+  Nuclear Charge             (z_nuclear)             : 4.0
+  Number of Electrons        (n_electrons)           : 4.0
+
+LOCAL POTENTIAL:
+  Core Cutoff Radius         (r_core_cutoff)         : 1.970000 Bohr
+  Grid Points                (r_grid_local)          : 400
+  Grid Range                 (r_grid_local)          : [0.000000, 3.990000] Bohr
+  Potential Range            (v_local_values)        : [-6.116765, -1.002507] Hartree
+
+NON-LOCAL POTENTIAL:
+  Maximum Angular Momentum   (l_max)                 : 1
+  Projectors per l           (n_projectors_per_l)    : [2, 2]
+  Spin-Orbit Coupling        (has_spin_orbit)        : No
+
+  l = 0: 2 projector(s)
+    Max cutoff radius: 1.970000 Bohr
+  l = 1: 2 projector(s)
+    Max cutoff radius: 1.920000 Bohr
+
+DENSITY INFORMATION:
+  Density Grid Points        (r_grid_density)        : 400
+  Density Grid Range         (r_grid_density)        : [0.000000, 3.990000] Bohr
+  Initial Density Range      (density_initial_guess) : [0.001214, 2.798877]
+  NLCC Density Range         (density_nlcc)          : [0.000000, 0.000000]
+
+===========================================================================
+                        OCCUPATION INFORMATION                             
+===========================================================================
+	 z_valence (valence charge) : 4.0
+	 z_nuclear (nuclear charge) : 4.0
+	 n_electrons                : 4.0
+	 all_electron_flag          : False
+	 occ_n                      : [1 2]
+	 occ_l                      : [0 0]
+	 occ_spin_up                : [1 1]
+	 occ_spin_down              : [1 1]
+	 occ_spin_up_plus_spin_down : [2 2]
+
+===========================================================================
+                     RadialOperatorsBuilder (Standard)                     
+===========================================================================
+	 Number of elements            : 30
+	 Physical nodes per element    : 16
+	 Quadrature points per element : 55
+	 Total DOFs                    : 481
+	 Total quadrature points       : 1650
+	 Lagrange basis shape          : (30, 55, 16)
+	 Lagrange derivatives shape    : (30, 55, 16)
+
+===========================================================================
+                       RadialOperatorsBuilder (Dense)                      
+===========================================================================
+	 Number of elements            : 30
+	 Physical nodes per element    : 32
+	 Quadrature points per element : 55
+	 Total DOFs                    : 961
+	 Total quadrature points       : 1650
+	 Lagrange basis shape          : (30, 55, 32)
+	 Lagrange derivatives shape    : (30, 55, 32)
+
+===========================================================================
+                        RadialOperatorsBuilder (OEP)                       
+===========================================================================
+	 Number of elements            : 30
+	 Physical nodes per element    : 5
+	 Quadrature points per element : 55
+	 Total DOFs                    : 151
+	 Total quadrature points       : 1650
+	 Lagrange basis shape          : (30, 55, 5)
+	 Lagrange derivatives shape    : (30, 55, 5)
+
+=== BLAS config INSIDE limits ===
+[{'filepath': '/home/strivedi44/.conda/envs/krr_env/lib/libmkl_rt.so.2',
+  'internal_api': 'mkl',
+  'num_threads': 6,
+  'prefix': 'libmkl_rt',
+  'threading_layer': 'intel',
+  'user_api': 'blas',
+  'version': '2025.0-Product'},
+ {'filepath': '/home/strivedi44/.conda/envs/krr_env/lib/libiomp5.so',
+  'internal_api': 'openmp',
+  'num_threads': 12,
+  'prefix': 'libiomp',
+  'user_api': 'openmp',
+  'version': None}]
+[Warm Start] Running GGA_PBE pre-calculation for initial guess
+===========================================================================
+                          Self-Consistent Field                            
+===========================================================================
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     9.696520e-04    1.000000e-08      No          0.072      
+	  2     4.384240e-05    1.000000e-08      No          0.031      
+	  3     2.356669e-05    1.000000e-08      No          0.027      
+	  4     1.118329e-06    1.000000e-08      No          0.027      
+	  5     3.263881e-08    1.000000e-08      No          0.027      
+	  6     7.945848e-09    1.000000e-08     Yes          0.026      
+	 SCF Iteration converged after 6 iteration(s)
+
+===========================================================================
+                          Self-Consistent Field                            
+===========================================================================
+Outer iteration 1
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     6.149273e-03    1.000000e-08      No          0.420      
+	  2     9.753830e-04    1.000000e-08      No          0.370      
+	  3     1.128357e-04    1.000000e-08      No          0.381      
+	  4     1.188866e-06    1.000000e-08      No          0.388      
+	  5     3.566148e-07    1.000000e-08      No          0.431      
+	  6     9.023945e-08    1.000000e-08      No          0.418      
+	  7     1.442667e-08    1.000000e-08      No          0.430      
+	  8     1.164423e-10    1.000000e-08     Yes          0.443      
+	 SCF Iteration converged after 8 iteration(s)
+	 Density residual of outer iteration: 5.621105e-03
+
+Outer iteration 2
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     4.636203e-04    1.000000e-08      No          0.421      
+	  2     1.547759e-05    1.000000e-08      No          0.375      
+	  3     8.226164e-06    1.000000e-08      No          0.381      
+	  4     2.611443e-07    1.000000e-08      No          0.373      
+	  5     2.967588e-09    1.000000e-08     Yes          0.370      
+	 SCF Iteration converged after 5 iteration(s)
+	 Density residual of outer iteration: 3.487959e-04
+
+Outer iteration 3
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     6.128297e-05    1.000000e-08      No          0.512      
+	  2     1.231057e-05    1.000000e-08      No          0.427      
+	  3     6.480009e-07    1.000000e-08      No          0.383      
+	  4     1.601900e-07    1.000000e-08      No          0.372      
+	  5     2.605590e-10    1.000000e-08     Yes          0.379      
+	 SCF Iteration converged after 5 iteration(s)
+	 Density residual of outer iteration: 3.763646e-05
+
+Outer iteration 4
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     1.138119e-05    1.000000e-08      No          0.423      
+	  2     3.453236e-06    1.000000e-08      No          0.374      
+	  3     4.088696e-07    1.000000e-08      No          0.380      
+	  4     7.205357e-09    1.000000e-08     Yes          0.375      
+	 SCF Iteration converged after 4 iteration(s)
+	 Density residual of outer iteration: 6.045857e-06
+
+Outer iteration 5
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     2.427435e-06    1.000000e-08      No          0.423      
+	  2     8.425944e-07    1.000000e-08      No          0.376      
+	  3     1.191867e-07    1.000000e-08      No          0.384      
+	  4     1.160812e-09    1.000000e-08     Yes          0.383      
+	 SCF Iteration converged after 4 iteration(s)
+	 Density residual of outer iteration: 1.203808e-06
+
+Outer iteration 6
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     5.454341e-07    1.000000e-08      No          0.438      
+	  2     1.984070e-07    1.000000e-08      No          0.376      
+	  3     2.972140e-08    1.000000e-08      No          0.379      
+	  4     1.945230e-10    1.000000e-08     Yes          0.376      
+	 SCF Iteration converged after 4 iteration(s)
+	 Density residual of outer iteration: 2.631375e-07
+
+Outer iteration 7
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     1.244656e-07    1.000000e-08      No          0.441      
+	  2     4.603946e-08    1.000000e-08      No          0.409      
+	  3     7.038474e-09    1.000000e-08     Yes          0.386      
+	 SCF Iteration converged after 3 iteration(s)
+	 Density residual of outer iteration: 6.144940e-08
+
+Outer iteration 8
+	 Iter     Residual         Target      Converged    Timing (sec)  
+---------------------------------------------------------------------------
+	  1     2.409932e-08    1.000000e-08      No          0.406      
+	  2     9.196979e-09    1.000000e-08     Yes          0.398      
+	 SCF Iteration converged after 2 iteration(s)
+	 Density residual of outer iteration: 8.945862e-09
+
+ Outer SCF iteration converged after 8 iteration(s)
+
+===========================================================================
+                             Total Energy (RPA)                            
+===========================================================================
+		 Kinetic (radial)     :       6.62259741158 Ha
+		 Kinetic (angular)    :       0.00000000000 Ha
+		 Total Kinetic        :       6.62259741158 Ha
+		 ---------------------------------------------
+		 External potential   :     -13.42785672942 Ha
+		 Hartree              :       5.70484851678 Ha
+		 Exchange             :       0.00000000000 Ha
+		 Correlation          :       0.00000000000 Ha
+		 Nonlocal PSP         :     -10.24927247567 Ha
+		 Exact exchange (HF)  :      -1.93089760099 Ha
+		 RPA Correlation      :      -0.14355288870 Ha
+		 Total Potential      :     -20.04673117800 Ha
+		 ---------------------------------------------
+		 TOTAL ENERGY         :     -13.42413376642 Ha
+
+===========================================================================
+                          CALCULATION COMPLETE                             
+===========================================================================
+	 Elapsed wall time: 37 m 27.323 s (2247.323 s total)
+
+===========================================================================
+*             Material Physics & Mechanics Group, Georgia Tech            *
+*                       PI: Phanish Suryanarayana                         *
+*               List of contributors: See the documentation               *
+*         Citation: See README.md or the documentation for details        *
+*                Acknowledgements: U.S. DOE SC (DE-SC0023445)             *
+===========================================================================
+	 total energy             = -13.424134 (Ha)
+eigenvalues [-4.00929405043813    -0.35076285679219754]
+
+Saved: results_Z4.json
