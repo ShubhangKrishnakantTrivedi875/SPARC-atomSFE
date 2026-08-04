@@ -24,10 +24,8 @@ Atomic Density Functional Theory (DFT) Solver
 from __future__ import annotations
 
 import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
+# BLAS/OpenMP thread counts are left to the environment -- set OMP_NUM_THREADS,
+# MKL_NUM_THREADS etc. in the job script before Python starts.
 
 import sys
 import re
@@ -103,6 +101,8 @@ from .scf import (
 # Valid XC Functional (imported from functional_requirements for single source of truth)
 # Valid XC Functional for OEP
 VALID_XC_FUNCTIONAL_FOR_OEP_LIST = ['EXX', 'RPA', 'PBE0']
+# Ground-state functionals allowed under 'RPA@DFT'
+VALID_GROUND_STATE_FUNCTIONAL_LIST = ['LDA_PW', 'GGA_PBE']
 
 # XC Functionals which need outer loop
 VALID_XC_FUNCTIONAL_FOR_OUTER_LOOP_LIST = ['HF', 'PBE0', 'EXX', 'RPA']
@@ -165,8 +165,9 @@ QUADRATURE_POINT_NUMBER_NOT_INTEGER_ERROR = \
 QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_0_ERROR = \
     "parameter 'quadrature_point_number' must be greater than 0, get {} instead."
 QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_2_POLYNOMIAL_ORDER_PLUS_3_ERROR = (
-    "parameter 'quadrature_point_number' must be greater than '2 * polynomial_order + 3', "
-    "i.e. at least 2 * {} + 3 = {}, get {} instead."
+    "parameter 'quadrature_point_number' must be at least as large as the largest "
+    "polynomial order among the standard, dense, and OEP bases (polynomial_order={}), "
+    "i.e. at least {}, get {} instead."
 )
 OEP_BASIS_NUMBER_NOT_INTEGER_ERROR = \
     "parameter 'oep_basis_number' must be an integer, get {} instead."
@@ -230,6 +231,10 @@ PSP_DIR_PATH_NOT_EXISTS_ERROR = \
     "parameter 'psp_dir_path' default directory path {} does not exist, please provide a valid psp directory path."
 PSP_FILE_NAME_NOT_STRING_ERROR = \
     "parameter 'psp_file_name' must be a string, get {} instead."
+GROUND_STATE_FUNCTIONAL_NOT_IN_VALID_LIST_ERROR = \
+    "parameter 'ground_state_functional' must be one of {}, get {} instead."
+GROUND_STATE_FUNCTIONAL_NOT_NONE_FOR_NON_RPA_AT_DFT_ERROR = \
+    "parameter 'ground_state_functional' is only used when xc_functional is 'RPA@DFT', so it must be None for '{}'."
 PSP_FILE_NAME_NOT_EXISTS_ERROR = \
     "parameter 'psp_file_name' '{}' does not exist in the psp file path '{}', please provide a valid psp file name."
 
@@ -444,14 +449,15 @@ class AtomicDFTSolver:
     n_electrons                       : float # Number of electrons in the system, can be fractional
     all_electron_flag                 : bool  # True for all-electron calculation, False for pseudopotential calculation
     spin_polarized_flag               : bool  # internal: always False (constructor toggle hidden in this build)
-    xc_functional                     : str   # XC functional type: 'GGA_PBE', 'RPA', 'EXX', 'LDA_SVWN', 'LDA_PZ', 'LDA_PW', 'SCAN', 'RSCAN', 'R2SCAN'
+    xc_functional                     : str   # XC functional type: 'GGA_PBE', 'RPA', 'RPA@DFT', 'EXX', 'LDA_SVWN', 'LDA_PZ', 'LDA_PW', 'SCAN', 'RSCAN', 'R2SCAN'
     use_oep                           : bool  # Enable optimized effective potential (OEP) workflow in SCF
+    ground_state_functional           : str   # Only for xc_functional='RPA@DFT': the functional ('LDA_PW' or 'GGA_PBE') whose converged orbitals E_c^RPA is evaluated on, non-self-consistently
 
     # Grid, basis, and mesh parameters
     domain_size                       : float # Radial computational domain size in atomic units (typically 10-30 Bohr)
     finite_element_number             : int   # Number of finite elements in the computational domain
     polynomial_order                  : int   # Polynomial order of basis functions within each finite element
-    quadrature_point_number           : int   # Number of quadrature points for numerical integration (recommended: 3-4x polynomial_order)
+    quadrature_point_number           : int   # Number of quadrature points for numerical integration (recommended: 2-3x polynomial_order)
     oep_basis_number                  : int   # Basis size used in OEP calculations when enabled
     mesh_type                         : str   # Mesh distribution type: 'exponential' (higher density near nucleus), 'polynomial', or 'uniform'
     mesh_concentration                : float # Mesh concentration parameter (controls point density distribution)
@@ -495,6 +501,7 @@ class AtomicDFTSolver:
         n_electrons                       : Optional[int | float]    = None,   # Number of electrons in the system, by default, set to atomic_number
         all_electron_flag                 : Optional[bool]           = None,   # False by default
         xc_functional                     : Optional[str]            = None,   # 'GGA_PBE' by default
+        ground_state_functional           : Optional[str]            = None,   # required for 'RPA@DFT'; 'LDA_PW' or 'GGA_PBE'
         use_oep                           : Optional[bool]           = None,   # False by default
 
         domain_size                       : Optional[float]          = None,   # 20.0 by default
@@ -547,6 +554,14 @@ class AtomicDFTSolver:
             True for all-electron, False for pseudopotential. Defaults to False.
         `xc_functional` : str
             Exchange-correlation functional ('GGA_PBE', 'RPA', 'EXX', etc.). Defaults to 'GGA_PBE'.
+            'RPA@DFT' runs non-self-consistent RPA: it converges `ground_state_functional`'s
+            orbitals via ordinary SCF (no OEP equation solved) and evaluates E_c^RPA once on
+            them, reporting E_x^HF + E_c^RPA in place of the ground-state functional's own
+            exchange/correlation. Cheaper than self-consistent 'RPA', at the cost of self-consistency.
+        `ground_state_functional` : str
+            Only used when `xc_functional='RPA@DFT'`; must be None otherwise. One of 'LDA_PW'
+            or 'GGA_PBE' -- the functional whose orbitals the post-hoc RPA correlation energy
+            is evaluated on. Defaults to 'GGA_PBE' when 'RPA@DFT' is selected.
         `use_oep` : bool
             Enable optimized effective potential calculations. Defaults to False.
 
@@ -663,6 +678,7 @@ class AtomicDFTSolver:
         self.linear_mixing_alpha2              = linear_mixing_alpha2
 
         self.psp_dir_path                      = psp_dir_path
+        self.ground_state_functional           = ground_state_functional
         self.psp_file_name                     = psp_file_name
 
         self.hybrid_mixing_parameter           = hybrid_mixing_parameter 
@@ -801,6 +817,7 @@ class AtomicDFTSolver:
             "hybrid_mixing_parameter"           : "hybrid_mixing_parameter",
             "frequency_quadrature_point_number" : "frequency_quadrature_point_number",
             "angular_momentum_cutoff"           : "angular_momentum_cutoff",
+            "ground_state_functional"           : "ground_state_functional",
             "oep_mixing_parameter"              : "oep_mixing_parameter",
             "enable_parallelization"            : "enable_parallelization",
         }
@@ -910,6 +927,18 @@ class AtomicDFTSolver:
         assert self.xc_functional in VALID_XC_FUNCTIONAL_LIST, \
             XC_FUNCTIONAL_NOT_IN_VALID_LIST_ERROR.format(VALID_XC_FUNCTIONAL_LIST, self.xc_functional)
 
+        # ground_state_functional: the functional that generates the orbitals for
+        # non-self-consistent RPA.  Required for 'RPA@DFT', meaningless otherwise.
+        if self.xc_functional == 'RPA@DFT':
+            if self.ground_state_functional is None:
+                self.ground_state_functional = 'GGA_PBE'
+            assert self.ground_state_functional in VALID_GROUND_STATE_FUNCTIONAL_LIST, \
+                GROUND_STATE_FUNCTIONAL_NOT_IN_VALID_LIST_ERROR.format(
+                    VALID_GROUND_STATE_FUNCTIONAL_LIST, self.ground_state_functional)
+        else:
+            assert self.ground_state_functional is None, \
+                GROUND_STATE_FUNCTIONAL_NOT_NONE_FOR_NON_RPA_AT_DFT_ERROR.format(self.xc_functional)
+
 
         # use OEP flag
         if self.use_oep in [0, 1]:
@@ -966,18 +995,9 @@ class AtomicDFTSolver:
             POLYNOMIAL_ORDER_NOT_GREATER_THAN_0_ERROR.format(self.polynomial_order)
 
 
-        # quadrature point number
-        if self.quadrature_point_number is None:
-            self.quadrature_point_number = 60
-        assert isinstance(self.quadrature_point_number, int), \
-            QUADRATURE_POINT_NUMBER_NOT_INTEGER_ERROR.format(type(self.quadrature_point_number))
-        assert self.quadrature_point_number > 0, \
-            QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_0_ERROR.format(self.quadrature_point_number)
-        assert self.quadrature_point_number >= 2 * self.polynomial_order + 3, \
-            QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_2_POLYNOMIAL_ORDER_PLUS_3_ERROR.\
-                format(self.polynomial_order, 2 * self.polynomial_order + 3, self.quadrature_point_number)
-
-        # OEP auxiliary basis size
+        # OEP auxiliary basis size -- resolved before the quadrature check below, which
+        # needs it; its own default depends only on polynomial_order/use_oep, so moving
+        # it earlier is safe (nothing between here and the old quadrature block reads it)
         if self.oep_basis_number is None:
             if self.use_oep:
                 default_oep_basis = max(1, int(self.polynomial_order * 0.25))
@@ -993,6 +1013,22 @@ class AtomicDFTSolver:
             assert self.oep_basis_number > 0, \
                 OEP_BASIS_NUMBER_NOT_GREATER_THAN_0_ERROR.format(self.oep_basis_number)
 
+        # quadrature point number
+        if self.quadrature_point_number is None:
+            self.quadrature_point_number = 60
+        assert isinstance(self.quadrature_point_number, int), \
+            QUADRATURE_POINT_NUMBER_NOT_INTEGER_ERROR.format(type(self.quadrature_point_number))
+        assert self.quadrature_point_number > 0, \
+            QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_0_ERROR.format(self.quadrature_point_number)
+        # Floor is the largest polynomial order among the three bases actually used:
+        # standard (polynomial_order), dense/Hartree (2*polynomial_order+1 by default --
+        # keep this in sync if you uncomment a custom dense_basis_order in _initialize_grids),
+        # and OEP (oep_basis_number, only when use_oep is set -- None otherwise, hence `or 0`).
+        dense_basis_order = 2 * self.polynomial_order + 1
+        _q_floor = max(self.polynomial_order, dense_basis_order, self.oep_basis_number or 0)
+        assert self.quadrature_point_number >= _q_floor, \
+            QUADRATURE_POINT_NUMBER_NOT_GREATER_THAN_2_POLYNOMIAL_ORDER_PLUS_3_ERROR.\
+                format(self.polynomial_order, _q_floor, self.quadrature_point_number)
 
         # mesh type
         if self.mesh_type is None:
@@ -1225,7 +1261,7 @@ class AtomicDFTSolver:
 
 
         # frequency integration point number
-        if self.xc_functional in ['RPA', ]:
+        if self.xc_functional in ['RPA', 'RPA@DFT']:
             if self.frequency_quadrature_point_number is None:
                 self.frequency_quadrature_point_number = 25
             assert isinstance(self.frequency_quadrature_point_number, int), \
@@ -1239,7 +1275,7 @@ class AtomicDFTSolver:
 
 
         # angular_momentum_cutoff, used for RPA functional only 
-        if self.xc_functional in ['RPA']:
+        if self.xc_functional in ['RPA', 'RPA@DFT']:
             if self.angular_momentum_cutoff is None:
                 self.angular_momentum_cutoff = 4
             assert isinstance(self.angular_momentum_cutoff, int), \
@@ -1271,7 +1307,7 @@ class AtomicDFTSolver:
                 OEP_MIXING_PARAMETER_NOT_IN_ZERO_ONE_ERROR.format(self.oep_mixing_parameter)
 
         # enable parallelization flag
-        if self.xc_functional in ['RPA']:
+        if self.xc_functional in ['RPA', 'RPA@DFT']:
             if self.enable_parallelization is None:
                 self.enable_parallelization = False
             assert isinstance(self.enable_parallelization, bool), \
@@ -1335,7 +1371,7 @@ class AtomicDFTSolver:
         # Be careful! This output can also be used to initialize the AtomicDFTSolver from output files!
         #     So, do not change the format of this output! Or if you want to change, please update the from_output_file method!
         print("===========================================================================")
-        print("*                  SPARC-atomSFE  (version May 28, 2026)                  *")
+        print("*                  SPARC-atomSFE  (version Aug  2, 2026)                  *")
         print("*   Copyright (c) 2026 Material Physics & Mechanics Group, Georgia Tech   *")
         print("*           Distributed under GNU General Public License 3 (GPL)          *")
         print("*                   Start time: {}                  *".format(get_sparc_time_string())) # Do not change the length for this line
@@ -1441,6 +1477,15 @@ class AtomicDFTSolver:
 
         # Generate refined FE nodes (for Hartree potential solver)
         refined_interp_nodes_ref = Mesh1D.refine_interpolation_nodes(interp_nodes_ref)
+        # To use a dense basis of an arbitrary order instead of the default 2*polynomial_order+1
+        # refinement above, set the order below and uncomment both lines -- this bypasses
+        # refine_interpolation_nodes entirely and builds an independent Lobatto grid instead
+        #  (the above statement/command build dense grid such that those dense grid points are
+        #   at midpoints of the standard grid, whereas the below command will not have this feature and 
+        #   will build a general lobatto grid for any arbitrary dense_basis_order):
+        # dense_basis_order = 2 * self.polynomial_order + 1
+        # refined_interp_nodes_ref, _ = Quadrature1D.lobatto(dense_basis_order)
+        
         refined_global_nodes = Mesh1D.generate_fe_nodes(
             boundaries_nodes = boundaries_nodes,
             interp_nodes     = refined_interp_nodes_ref
@@ -1571,6 +1616,7 @@ class AtomicDFTSolver:
             mixer                             = mixer,
             occupation_info                   = self.occupation_info,
             xc_functional                     = self.xc_functional,
+            ground_state_functional           = self.ground_state_functional,
             spin_polarized_flag               = self.spin_polarized_flag,
             hybrid_mixing_parameter           = self.hybrid_mixing_parameter,
             use_oep                           = self.use_oep,
@@ -1591,6 +1637,7 @@ class AtomicDFTSolver:
         
         # Energy calculator (uses standard grid data and ops_builder, but dense derivative matrix)
         self.energy_calculator = EnergyCalculator(
+            rpa_calculator     = self.scf_driver.rpa_calculator,
             switches           = self.scf_driver.switches,
             grid_data          = grid_data_standard,
             occupation_info    = self.occupation_info,

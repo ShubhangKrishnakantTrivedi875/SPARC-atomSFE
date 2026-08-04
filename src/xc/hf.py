@@ -407,18 +407,27 @@ class HartreeFockExchange:
 
     def compute_exchange_potentials(
         self,
-        orbitals
+        orbitals,
+        method : ExchangeMethod = "differential_equation",
     ):
         """
         Compute Hartree-Fock exchange potentials for all angular momentum channels.
 
         This function is useful for the OEP calculation. Here, the input orbitals should only contain the occupied orbitals.
 
+        The two methods differ only in how the radial Coulomb kernel v^(L) is built:
+        1. "direct_integration": the analytic multipole kernel r_<^L / r_>^(L+1), which
+           converges slowly in the radial quadrature order (and more slowly with Z).
+        2. "differential_equation": solves the radial Poisson equation in the dense FE
+           basis, converged at radial quadrature order comparable to the polynomial order.
+
         Parameters
         ----------
         orbitals : np.ndarray
             Kohn-Sham orbitals (radial wavefunctions) at quadrature points
             Shape: (n_grid, n_orbitals)
+        method : ExchangeMethod, optional
+            Method to use: "direct_integration" or "differential_equation" (default)
 
         Returns
         -------
@@ -426,6 +435,8 @@ class HartreeFockExchange:
             Hartree-Fock exchange potential for all angular momentum channels
             Shape: (len(l_values), n_grid)
         """
+        if method not in ("direct_integration", "differential_equation"):
+            raise ValueError(INVALID_EXCHANGE_METHOD_ERROR.format(method))
         # Check Type and shape
         assert isinstance(orbitals, np.ndarray), \
             ORBITALS_MUST_BE_A_NUMPY_ARRAY_ERROR.format(type(orbitals))
@@ -439,13 +450,37 @@ class HartreeFockExchange:
         # Compute HF exchange matrices for all l channels
         l_coupling = np.arange(0, 2 * np.max(self.l_values) + 1)
 
+        # L-independent part of the differential kernel, built once above the loop.  The
+        # interpolation matrix must come from the same basis as the operator it is solved
+        # against, hence the dense builder on both.
+        if method == "differential_equation":
+            weighted_interp = self.ops_builder_dense.global_interpolation_matrix[:, 1:] * \
+                              (self.quadrature_weights / self.quadrature_nodes)[:, np.newaxis]
+            laplacian  = self.ops_builder_dense.laplacian
+            h_r_inv_sq = self.ops_builder_dense.get_H_r_inv_sq()
+            r_max      = self.ops_builder_dense.physical_nodes[-1]
+
         # Compute exchange potential for each l channel
         exchange_potential_l_contribution_list : List[np.ndarray] = []
         for l_prime in l_coupling:
             _wigner_term = np.array([
                 CoulombCouplingCalculator.wigner_3j_000(int(l1), int(l2), int(l_prime))**2 for l1 in self.l_values for l2 in self.l_values
             ], dtype=float).reshape(len(self.l_values), len(self.l_values))
-            
+
+            # bare v^(L) on the quadrature grid, weights included; both routes return the
+            # same object, so the (2L+1) below is applied identically
+            if method == "direct_integration":
+                _radial_kernel = CoulombCouplingCalculator.radial_kernel(
+                    l_prime, self.quadrature_nodes, self.quadrature_weights)
+            else:
+                # Robin condition u'(R) + (L+1)/R u(R) = 0 enforces the r^{-L-1} decay
+                _operator = - laplacian[1:, 1:] + h_r_inv_sq[1:, 1:] * (l_prime * (l_prime + 1))
+                _operator[-1, -1] += l_prime / r_max
+                # weighted_interp carries the quadrature weights, so the resolvent is
+                # already normalised -- no Wronskian factor here
+                _radial_kernel = weighted_interp @ scipy.linalg.solve(
+                    _operator, weighted_interp.T, check_finite=False, overwrite_a=True)
+
             _exchange_potential_l_contribution = -0.5 * np.einsum(
                 'ki,ji,ikj->kj',
                 _wigner_term * self.occupations,
@@ -453,7 +488,7 @@ class HartreeFockExchange:
                 np.einsum('li,lk,jl->ikj',
                     orbitals,
                     orbitals,
-                    CoulombCouplingCalculator.radial_kernel(l_prime, self.quadrature_nodes, self.quadrature_weights) * (2 * l_prime + 1),
+                    _radial_kernel * (2 * l_prime + 1),
                 ),
                 optimize=True,
             )

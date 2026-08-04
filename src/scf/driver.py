@@ -35,6 +35,13 @@ USE_XC_FUNCTIONAL_TYPE_ERROR = \
     "parameter 'use_xc_functional' must be a boolean, get type {} instead."
 USE_HF_EXCHANGE_TYPE_ERROR = \
     "parameter 'use_hf_exchange' must be a boolean, get type {} instead."
+# Ground-state functionals allowed under 'RPA@DFT'.  Restricted to the two local
+# functionals for now; EXX and the meta-GGAs are deliberately left out until the
+# double-counting convention for their exchange is settled.
+VALID_GROUND_STATE_FUNCTIONAL_LIST = ['LDA_PW', 'GGA_PBE']
+
+GROUND_STATE_FUNCTIONAL_NOT_VALID_ERROR = \
+    "parameter 'ground_state_functional' must be one of {}, get {} instead."
 USE_OEP_EXCHANGE_TYPE_ERROR = \
     "parameter 'use_oep_exchange' must be a boolean, get type {} instead."
 USE_OEP_CORRELATION_TYPE_ERROR = \
@@ -254,7 +261,8 @@ class SwitchesFlags:
     """
     def __init__(
         self, 
-        xc_functional          : str, 
+        xc_functional          : str,
+        ground_state_functional : Optional[str] = None,
         use_oep                : Optional[bool]  = None,
         hybrid_mixing_parameter: Optional[float] = None,
     ):
@@ -290,6 +298,9 @@ class SwitchesFlags:
         
         self.xc_functional           = xc_functional
         self.hybrid_mixing_parameter = hybrid_mixing_parameter
+        # For 'RPA@DFT' this is the functional that drives the SCF; the XC evaluator is
+        # built from it, not from xc_functional, which is not an evaluator name.
+        self.ground_state_functional = ground_state_functional
         
         # Initialize all flags to False, except use_xc_functional which is True by default
         self.use_xc_functional   = True
@@ -298,6 +309,9 @@ class SwitchesFlags:
         self.use_oep_exchange    = False
         self.use_oep_correlation = False
         self.use_metagga         = False
+        # Non-self-consistent RPA: converge the ground-state functional, then replace its
+        # exchange and correlation by exact exchange and RPA correlation on those orbitals.
+        self.use_post_scf_rpa    = False
         
         # Set flags based on functional
         if xc_functional == 'None':
@@ -328,6 +342,25 @@ class SwitchesFlags:
                 print(HYBRID_MIXING_PARAMETER_NOT_1_0_WARNING.format('RPA', hybrid_mixing_parameter))
             self.hybrid_mixing_parameter = 1.0
 
+
+        # Non-self-consistent RPA on top of a local functional
+        elif xc_functional == 'RPA@DFT':
+            # the ground-state functional supplies the SCF potential, so unlike EXX/RPA
+            # the local XC evaluator stays on
+            self.use_xc_functional   = True
+            self.use_post_scf_rpa    = True
+            self.use_oep_exchange    = False   # no OEP equation is solved
+            self.use_oep_correlation = False
+            self.use_hf_exchange     = False   # HF must NOT enter the Hamiltonian
+            # Default rather than assert: SwitchesFlags is also constructed positionally
+            # with only xc_functional (see _compute_default_full_orbitals_and_eigenvalues),
+            # and solver.py already applies this same default before getting here.
+            if ground_state_functional is None:
+                ground_state_functional = 'GGA_PBE'
+                self.ground_state_functional = ground_state_functional
+            assert ground_state_functional in VALID_GROUND_STATE_FUNCTIONAL_LIST, \
+                GROUND_STATE_FUNCTIONAL_NOT_VALID_ERROR.format(
+                    VALID_GROUND_STATE_FUNCTIONAL_LIST, ground_state_functional)
 
         # Hartree-Fock exchange functionals
         elif xc_functional == 'HF':
@@ -375,6 +408,17 @@ class SwitchesFlags:
         return self.use_oep_exchange or self.use_oep_correlation
 
 
+    @property
+    def needs_full_spectrum(self) -> bool:
+        """
+        Whether the virtual manifold has to be diagonalised as well as the occupied
+        states.  True for the OEP functionals, which need it for chi_0, and for
+        'RPA@DFT', which needs it for the correlation energy -- but the latter must not
+        switch on any OEP machinery, which is why this is separate from use_oep.
+        """
+        return self.use_oep or self.use_post_scf_rpa
+
+
     @staticmethod
     def check_xc_functional_and_use_oep_consistency(use_oep: bool, xc_functional: str):
         """
@@ -394,7 +438,7 @@ class SwitchesFlags:
         if xc_functional in ['EXX', 'RPA']:
             assert use_oep is True, \
                 USE_OEP_NOT_TRUE_FOR_OEP_FUNCTIONAL_ERROR.format(xc_functional)
-        elif xc_functional in ['None', 'Schrodinger', 'LDA_SVWN', 'LDA_PZ', 'LDA_PW', 'GGA_PBE', 'SCAN', 'RSCAN', 'R2SCAN', 'HF']:
+        elif xc_functional in ['None', 'Schrodinger', 'LDA_SVWN', 'LDA_PZ', 'LDA_PW', 'GGA_PBE', 'SCAN', 'RSCAN', 'R2SCAN', 'HF', 'RPA@DFT']:
             assert use_oep is False, \
                 USE_OEP_NOT_FALSE_FOR_NON_OEP_FUNCTIONAL_ERROR.format(xc_functional)
         else:
@@ -419,6 +463,9 @@ class SwitchesFlags:
         print(f"\t use_xc_functional          : {self.use_xc_functional}")
         print(f"\t use_hartree                : {self.use_hartree}")
         print(f"\t use_hf_exchange            : {self.use_hf_exchange}")
+        print(f"\t use_post_scf_rpa           : {self.use_post_scf_rpa}")
+        if self.use_post_scf_rpa:
+            print(f"\t ground_state_functional    : {self.ground_state_functional}")
         print(f"\t use_oep_exchange           : {self.use_oep_exchange}")
         print(f"\t use_oep_correlation        : {self.use_oep_correlation}")
         print(f"\t use_metagga                : {self.use_metagga}")
@@ -1009,6 +1056,7 @@ class SCFDriver:
         xc_functional                     : str,
         spin_polarized_flag               : bool,
         use_oep                           : Optional[bool]                   = None,
+        ground_state_functional           : Optional[str]                   = None,  # for 'RPA@DFT' only
         hybrid_mixing_parameter           : Optional[float]                  = None,
         ops_builder_oep                   : Optional[RadialOperatorsBuilder] = None,
         oep_mixing_parameter              : Optional[float]                  = None,
@@ -1099,6 +1147,7 @@ class SCFDriver:
         # Create SwitchesFlags instance (handles validation internally)
         self.switches = SwitchesFlags(
             xc_functional           = xc_functional,
+            ground_state_functional = ground_state_functional,
             use_oep                 = use_oep,
             hybrid_mixing_parameter = hybrid_mixing_parameter
         )
@@ -1117,6 +1166,9 @@ class SCFDriver:
 
         # Initialize OEP calculator for OEP calculations
         self.oep_calculator : Optional[OEPCalculator] = self._initialize_oep_calculator()
+
+        # Non-self-consistent RPA: correlation energy without an OEP solve
+        self.rpa_calculator = self._initialize_rpa_calculator()
 
         # Initialize response calculator for dielectric matrix computation
         self.response_calculator : Optional[ResponseCalculator] = self._initialize_response_calculator()
@@ -1214,7 +1266,9 @@ class SCFDriver:
         """
         if self.switches.use_xc_functional:
             return create_xc_evaluator(
-                functional_name   = self.xc_functional,
+                # 'RPA@DFT' is not an evaluator name; the ground-state functional is
+                functional_name   = self.switches.ground_state_functional
+                                    or self.xc_functional,
                 derivative_matrix = derivative_matrix,
                 r_quad            = r_quad
             )
@@ -1231,7 +1285,9 @@ class SCFDriver:
             Now using poisson_solver.ops_builder, which has denser grids for the HF exchange calculation
         """
         # Only create HF calculator for hybrid functionals
-        if not self.switches.use_hf_exchange:
+        # RPA@DFT needs this for the exact-exchange ENERGY only; use_hf_exchange stays
+        # False so nothing is added to the Hamiltonian (hamiltonian.py:207,214).
+        if not (self.switches.use_hf_exchange or self.switches.use_post_scf_rpa):
             return None
         
         # Create HF exchange calculator with ops_builder and occupation_info
@@ -1272,6 +1328,33 @@ class SCFDriver:
         )
 
         return oep_calculator
+
+
+    def _initialize_rpa_calculator(self):
+        """
+        Initialize a standalone RPACorrelation for the non-self-consistent path.
+
+        Used only by 'RPA@DFT', where the correlation ENERGY is wanted but no OEP
+        equation is solved, so there is no OEPCalculator to carry RPACorrelation as a
+        mixin.  Returns None for every other functional.
+
+        ops_builder_dense is attached explicitly: _precompute_radial_coulomb_kernel_terms
+        and _radial_poisson_operator both fall back to self.ops_builder when it is
+        absent, which would silently build the differential Coulomb kernel on the
+        standard basis instead of the dense one -- a different nu, and a quietly
+        different correlation energy.
+        """
+        if not self.switches.use_post_scf_rpa:
+            return None
+
+        from ..xc.rpa import RPACorrelation
+        rpa_calculator = RPACorrelation(
+            ops_builder                       = self.hamiltonian_builder.ops_builder,
+            occupation_info                   = self.occupation_info,
+            frequency_quadrature_point_number = self.frequency_quadrature_point_number,
+        )
+        rpa_calculator.ops_builder_dense = self.poisson_solver.ops_builder
+        return rpa_calculator
 
 
     def _initialize_response_calculator(self) -> ResponseCalculator:
@@ -1679,7 +1762,13 @@ class SCFDriver:
             # Determine which l values to iterate over
             # If angular_momentum_cutoff is set (e.g., for RPA), iterate over all l values from 0 to cutoff
             # Otherwise, only iterate over occupied l values
-            if self.angular_momentum_cutoff is not None:
+            # The extended l range exists so chi_0 can see the virtual channels.  The OEP
+            # functionals rebuild chi_0 every iteration, so they need it here; 'RPA@DFT'
+            # needs it only once, at the converged density, and channels with no occupied
+            # states contribute nothing to rho -- so the SCF loop stays on the occupied
+            # channels and the extra ones are picked up by the single-shot full
+            # diagonalisation after convergence.
+            if self.angular_momentum_cutoff is not None and self.switches.use_oep:
                 unique_l_values = list(range(self.angular_momentum_cutoff + 1))
             else:
                 unique_l_values = self.occupation_info.unique_l_values
@@ -1829,7 +1918,7 @@ class SCFDriver:
 
         # Construct full eigenvalues/orbitals/l-terms at the *final SCF state*.
         # This is a single-shot full-spectrum diagonalization at the converged density.
-        if self.switches.use_oep or save_full_spectrum:
+        if self.switches.needs_full_spectrum or save_full_spectrum:
             full_eigen_energies, full_orbitals, full_l_terms = \
                 self._compute_full_orbitals_and_eigenvalues(
                     rho             = final_density_data.rho,
@@ -2237,7 +2326,13 @@ class SCFDriver:
             # Determine which l values to iterate over
             # If angular_momentum_cutoff is set (e.g., for RPA), iterate over all l values from 0 to cutoff
             # Otherwise, only iterate over occupied l values
-            if self.angular_momentum_cutoff is not None:
+            # The extended l range exists so chi_0 can see the virtual channels.  The OEP
+            # functionals rebuild chi_0 every iteration, so they need it here; 'RPA@DFT'
+            # needs it only once, at the converged density, and channels with no occupied
+            # states contribute nothing to rho -- so the SCF loop stays on the occupied
+            # channels and the extra ones are picked up by the single-shot full
+            # diagonalisation after convergence.
+            if self.angular_momentum_cutoff is not None and self.switches.use_oep:
                 unique_l_values = list(range(self.angular_momentum_cutoff + 1))
             else:
                 unique_l_values = self.occupation_info.unique_l_values
@@ -2500,7 +2595,7 @@ class SCFDriver:
         # Construct full eigenvalues/orbitals/l-terms at the *final SCF state*.
         # This is a single-shot full-spectrum diagonalization at the converged density.
         if False:
-            if self.switches.use_oep or save_full_spectrum:
+            if self.switches.needs_full_spectrum or save_full_spectrum:
                 full_eigen_energies, full_orbitals, full_l_terms = \
                     self._compute_full_orbitals_and_eigenvalues(
                         rho             = final_density_data.rho,
@@ -3077,6 +3172,9 @@ class SCFDriver:
             symmetrize   = symmetrize,
             pad_width    = 1,
         )
+        # The FE-basis block is dead once the quadrature-basis one exists; drop it before
+        # returning so the two are never both resident for the caller.
+        del full_eigenvectors
 
         return full_eigenvalues, full_orbitals, full_l_terms
 
