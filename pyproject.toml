@@ -79,10 +79,15 @@ Issues = "https://github.com/phanish-suryanarayana/atom/issues"
 
 [tool.setuptools]
 include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["atom", "atom.*"]
+# 'atom' maps to the REPO ROOT (not to src/) -- the root __init__.py is atom's own
+# __init__, and it already implements the atom.X -> atom.src.X aliasing (see
+# _register_submodules() there) on the assumption that atom.src.* are real,
+# directly-importable modules matching src/'s actual layout.  packages is listed
+# explicitly since find_packages only matches directories literally named
+# 'atom'/'atom.*', which none of src/'s subdirectories are.
+package-dir = {"atom" = "."}
+packages = ["atom", "atom.src", "atom.src.data", "atom.src.mesh", "atom.src.pseudo",
+            "atom.src.scf", "atom.src.utils", "atom.src.xc"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -92,4 +97,5 @@ python_functions = ["test_*"]
 addopts = "-v --tb=short"
 markers = [
     "smoke: end-to-end smoke tests for solver workflows",
+    "rpa_accuracy: RPA accuracy/timing/memory checks against tests/accuracy/RPA/reference.json -- expensive, strongly recommends a 24-core allocation; select with -m rpa_accuracy or exclude with -m 'not rpa_accuracy'",
 ]

@@ -1,0 +1,87 @@
+{
+  "RPA-OEP/AE/Al": {
+    "exact_exchange_energy": -17.93444090996507,
+    "ionization_potential": 0.10972179244851316,
+    "rpa_correlation_energy": -0.7346249254094817,
+    "total_energy": -242.5084557592993
+  },
+  "RPA-OEP/AE/Ar": {
+    "exact_exchange_energy": -30.184233661425136,
+    "ionization_potential": 0.5895624488834359,
+    "rpa_correlation_energy": -1.1126958211725966,
+    "total_energy": -527.9232905665799
+  },
+  "RPA-OEP/AE/Au": {
+    "exact_exchange_energy": -338.15159358958005,
+    "ionization_potential": 0.20514049036099993,
+    "rpa_correlation_energy": -6.759505737056609,
+    "total_energy": -17872.05537890903
+  },
+  "RPA-OEP/AE/Be": {
+    "exact_exchange_energy": -2.6782153266533135,
+    "ionization_potential": 0.3556273146391584,
+    "rpa_correlation_energy": -0.18523297376531095,
+    "total_energy": -14.754488436419186
+  },
+  "RPA-OEP/AE/He": {
+    "exact_exchange_energy": -1.0246243736860643,
+    "ionization_potential": 0.9017800660618908,
+    "rpa_correlation_energy": -0.08372814130973913,
+    "total_energy": -2.9452835701102273
+  },
+  "RPA-OEP/psp/Al": {
+    "exact_exchange_energy": -0.42030558808235885,
+    "ionization_potential": 0.11124203583280487,
+    "rpa_correlation_energy": -0.10604130872039609,
+    "total_energy": -1.8602093710986658
+  },
+  "RPA-OEP/psp/Ar": {
+    "exact_exchange_energy": -3.3781884869193273,
+    "ionization_potential": 0.5861112680563783,
+    "rpa_correlation_energy": -0.3919154967832132,
+    "total_energy": -21.11304113953551
+  },
+  "RPA-OEP/psp/Au": {
+    "exact_exchange_energy": -11.201600062986513,
+    "ionization_potential": 0.2688854578599207,
+    "rpa_correlation_energy": -1.0404878058837341,
+    "total_energy": -132.45318163619442
+  },
+  "RPA-OEP/psp/Be": {
+    "exact_exchange_energy": -1.930897775911082,
+    "ionization_potential": 0.3505755116467339,
+    "rpa_correlation_energy": -0.1435692777126789,
+    "total_energy": -13.424149588388687
+  },
+  "RPA-OEP/psp/He": {
+    "exact_exchange_energy": -0.9997234952140618,
+    "ionization_potential": 0.8995960527262483,
+    "rpa_correlation_energy": -0.07657832011018526,
+    "total_energy": -2.9051733551788046
+  },
+  "RPA@GGA_PBE/AE/Al": {
+    "exact_exchange_energy": -17.926048896537164,
+    "rpa_correlation_energy": -0.7389836371945941,
+    "total_energy": -242.5003391306407
+  },
+  "RPA@GGA_PBE/AE/Ar": {
+    "exact_exchange_energy": -30.145985746990924,
+    "rpa_correlation_energy": -1.114256850447707,
+    "total_energy": -527.9205221802241
+  },
+  "RPA@GGA_PBE/AE/Au": {
+    "exact_exchange_energy": -338.0133168560737,
+    "rpa_correlation_energy": -6.777182879601407,
+    "total_energy": -17872.046142357296
+  },
+  "RPA@GGA_PBE/AE/Be": {
+    "exact_exchange_energy": -2.65954876397397,
+    "rpa_correlation_energy": -0.18174914119624697,
+    "total_energy": -14.752218178903213
+  },
+  "RPA@GGA_PBE/AE/He": {
+    "exact_exchange_energy": -1.0133687063788308,
+    "rpa_correlation_energy": -0.08431329373252114,
+    "total_energy": -2.9444545699631934
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "converged": true,
+  "eigen_energies": [
+    -4.32333781486677,
+    -0.3556273146391584
+  ],
+  "error": null,
+  "exact_exchange": -2.6782153266533135,
+  "homo": -0.3556273146391584,
+  "ok": true,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 20,
+    "atomic_number": 4,
+    "domain_size": 13.0,
+    "enable_parallelization": true,
+    "finite_element_number": 10,
+    "frequency_quadrature_point_number": 24,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "use_preconditioner": false,
+    "xc_functional": "RPA"
+  },
+  "peak_rss_mb": 501.79296875,
+  "rpa_correlation": -0.18523297376531095,
+  "scf_iterations": 12,
+  "total_energy": -14.754488436419186,
+  "wall_s": 35.1141893863678
+}

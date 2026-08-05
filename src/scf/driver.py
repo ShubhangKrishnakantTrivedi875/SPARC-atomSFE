@@ -1859,6 +1859,13 @@ class SCFDriver:
             # ===== Step 5: Mix densities and update density_data =====
             if self.mixer.use_preconditioner:
                 # compute dielectric matrix for preconditioning
+                #
+                # angular_momentum_cutoff here must match whatever unique_l_values was
+                # actually built with above (the use_oep gate a few lines up) -- 'RPA@DFT'
+                # deliberately builds occ_eigenvalues_list over occupied l only during the
+                # SCF loop (see the comment there), so passing self.angular_momentum_cutoff
+                # unconditionally made this validation expect the OEP-only full l range and
+                # fail for any non-OEP functional with angular_momentum_cutoff set.
                 full_eigenvalues, full_orbitals, full_l_terms = \
                     self._construct_full_eigenvalues_and_orbitals_and_l_terms(
                         occ_eigenvalues_list    = occ_eigenvalues_list,
@@ -1866,7 +1873,8 @@ class SCFDriver:
                         unocc_eigenvalues_list  = unocc_eigenvalues_list,
                         unocc_eigenvectors_list = unocc_eigenvectors_list,
                         symmetrize              = False,
-                        angular_momentum_cutoff = self.angular_momentum_cutoff,
+                        angular_momentum_cutoff = (self.angular_momentum_cutoff
+                                                   if self.switches.use_oep else None),
                     )
                 dielectric_matrix = self.response_calculator.compute_dielectric_matrix(
                     full_eigenvalues,
@@ -2493,7 +2501,9 @@ class SCFDriver:
             
             # ===== Step 5: Mix densities and update density_data =====
             if self.mixer.use_preconditioner:
-                # compute dielectric matrix for preconditioning
+                # compute dielectric matrix for preconditioning -- angular_momentum_cutoff
+                # gated the same way as unique_l_values above; see the non-spin-polarized
+                # branch's comment for why
                 full_eigenvalues_up, full_orbitals_up, full_l_terms_up = \
                     self._construct_full_eigenvalues_and_orbitals_and_l_terms(
                         occ_eigenvalues_list    = occ_eigenvalues_up_list,
@@ -2501,7 +2511,8 @@ class SCFDriver:
                         unocc_eigenvalues_list  = unocc_eigenvalues_up_list,
                         unocc_eigenvectors_list = unocc_eigenvectors_up_list,
                         symmetrize              = False,
-                        angular_momentum_cutoff = self.angular_momentum_cutoff,
+                        angular_momentum_cutoff = (self.angular_momentum_cutoff
+                                                   if self.switches.use_oep else None),
                     )
                 full_eigenvalues_dn, full_orbitals_dn, full_l_terms_dn = \
                     self._construct_full_eigenvalues_and_orbitals_and_l_terms(
@@ -2510,7 +2521,8 @@ class SCFDriver:
                         unocc_eigenvalues_list  = unocc_eigenvalues_dn_list,
                         unocc_eigenvectors_list = unocc_eigenvectors_dn_list,
                         symmetrize              = False,
-                        angular_momentum_cutoff = self.angular_momentum_cutoff,
+                        angular_momentum_cutoff = (self.angular_momentum_cutoff
+                                                   if self.switches.use_oep else None),
                     )
                 dielectric_matrix_up = self.response_calculator.compute_dielectric_matrix(
                     full_eigenvalues_up,
