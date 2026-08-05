@@ -1,0 +1,85 @@
+{
+  "Z": 4,
+  "cid": "sc__Nfe05",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -4.324077511516558,
+    -0.3572239667109913
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -33.75191515613592,
+    "hartree": 7.253001087205614,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 0.0,
+    "kinetic_radial": 14.607861761576979,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -2.678200778967796,
+    "rpa_correlation": -0.18524779812560457
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 15:59:47",
+  "l_values": [
+    0,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 6400,
+    "peak_rss_single_mb": 201.2,
+    "peak_rss_tree_mb": 201.2,
+    "ru_maxrss_child_mb": 201.2,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 2,
+  "n_values": [
+    1,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 30,
+    "atomic_number": 4,
+    "domain_size": 13.0,
+    "finite_element_number": 5,
+    "frequency_quadrature_point_number": 24,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python",
+  "scf_iterations": 11,
+  "setting": "Nfe05",
+  "slurm": {
+    "array_task": null,
+    "cpus": null,
+    "job_id": "11671589",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.01517486572265625,
+  "t_solve_s": 35.86940932273865,
+  "threads": {
+    "MKL_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -14.75450088444673,
+  "wall_s": 39.299469232559204,
+  "xc": "RPA"
+}

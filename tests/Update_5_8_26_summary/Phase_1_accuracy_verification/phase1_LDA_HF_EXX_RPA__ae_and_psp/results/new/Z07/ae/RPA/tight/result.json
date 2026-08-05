@@ -1,0 +1,89 @@
+{
+  "Z": 7,
+  "cid": "new__Z07__ae__RPA__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -14.185284359878922,
+    -0.7039331643494443,
+    -0.27808931836329376
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -127.08109989784504,
+    "hartree": 25.23954672809621,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.6162521291980947,
+    "kinetic_radial": 50.2958949087109,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -5.91646846683112,
+    "rpa_correlation": -0.34862965663279044
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:44:25",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 69924,
+    "peak_rss_single_mb": 1245.5,
+    "peak_rss_tree_mb": 1245.5,
+    "ru_maxrss_child_mb": 1245.5,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 8,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "144",
+    "cpus": "3",
+    "job_id": "11657688",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.035660505294799805,
+  "t_solve_s": 380.74683690071106,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -54.19450425530374,
+  "wall_s": 383.023633480072,
+  "xc": "RPA"
+}

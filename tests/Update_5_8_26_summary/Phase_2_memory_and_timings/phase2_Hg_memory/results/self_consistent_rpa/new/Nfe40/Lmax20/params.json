@@ -1,0 +1,16 @@
+{
+  "all_electron_flag": true,
+  "angular_momentum_cutoff": 20,
+  "atomic_number": 80,
+  "domain_size": 13.0,
+  "finite_element_number": 40,
+  "frequency_quadrature_point_number": 4,
+  "max_scf_iterations_outer": 1,
+  "mesh_concentration": 2,
+  "mesh_type": "polynomial",
+  "polynomial_order": 20,
+  "quadrature_point_number": 45,
+  "scf_tolerance": 1e-08,
+  "use_oep": true,
+  "xc_functional": "RPA"
+}

@@ -1,0 +1,81 @@
+{
+  "Z": 2,
+  "cid": "new__Z02__psp__RPA__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -0.9051269214135869
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -4.711860328585849,
+    "hartree": 1.9995098212341416,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 0.0,
+    "kinetic_radial": 2.4926369629569725,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -1.6091255850962303,
+    "oep_exchange": -0.9997549106211079,
+    "rpa_correlation": -0.07664544517216947
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:40:12",
+  "l_values": [
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 51703,
+    "peak_rss_single_mb": 1328.0,
+    "peak_rss_tree_mb": 1328.0,
+    "ru_maxrss_child_mb": 1328.0,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 1,
+  "n_values": [
+    1
+  ],
+  "occupations": [
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 2,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 9,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "141",
+    "cpus": "3",
+    "job_id": "11657660",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.06692862510681152,
+  "t_solve_s": 280.93667125701904,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -2.9052394852842425,
+  "wall_s": 283.2212471961975,
+  "xc": "RPA"
+}

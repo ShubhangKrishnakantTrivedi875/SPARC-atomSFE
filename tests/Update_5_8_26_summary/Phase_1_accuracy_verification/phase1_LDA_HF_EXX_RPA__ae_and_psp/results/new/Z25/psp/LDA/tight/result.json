@@ -1,0 +1,91 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__psp__LDA__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.1577468324396625,
+    -2.0077029263318567,
+    -0.25394812598052496,
+    -0.19558605971009305
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": -1.3001965728597187,
+    "exchange": -15.013393979381018,
+    "external": -201.05951467803555,
+    "hartree": 83.72388117655892,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 26.925406249015342,
+    "kinetic_radial": 16.526207145357787,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.918037839232877,
+    "oep_exchange": 0.0,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:22:39",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 743,
+    "peak_rss_single_mb": 246.4,
+    "peak_rss_tree_mb": 246.4,
+    "ru_maxrss_child_mb": 246.4,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "LDA_PW"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 9,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "55",
+    "cpus": "3",
+    "job_id": "11657398",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.0857853889465332,
+  "t_solve_s": 1.2926888465881348,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -105.11564849857713,
+  "wall_s": 4.123856067657471,
+  "xc": "LDA"
+}

@@ -1,0 +1,52 @@
+{
+  "Z": 42,
+  "cid": "orig__Z42__psp__RPA__loose",
+  "code": "orig",
+  "electrons": "psp",
+  "error": "LinAlgError: Singular matrix",
+  "exit_code": 1,
+  "finished_at": "2026-08-03 17:42:44",
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 29678,
+    "peak_rss_single_mb": 2314.4,
+    "peak_rss_tree_mb": 2314.4,
+    "ru_maxrss_child_mb": 2316.4,
+    "sample_dt_s": 0.005
+  },
+  "ok": false,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 42,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "loose",
+  "slurm": {
+    "array_task": "131",
+    "cpus": "3",
+    "job_id": "11658377",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.0615994930267334,
+  "t_solve_s": NaN,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "traceback": "Traceback (most recent call last):\n  File \"/storage/project/r-phanish6-0/strivedi44/phase1_validation/_child_sparc.py\", line 48, in <module>\n    out = solver.solve(save_full_spectrum=False)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/solver.py\", line 2099, in solve\n    scf_result : SCFResult = self.scf_driver.run(\n                             ^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/driver.py\", line 1464, in run\n    return self._outer_loop(rho_initial, settings, orbitals_initial, intermediate_info = intermediate_info, save_full_spectrum = save_full_spectrum)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/driver.py\", line 1970, in _outer_loop\n    inner_result : SCFResult = self._inner_loop(\n                               ^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/driver.py\", line 1791, in _inner_loop\n    rho = self.mixer.mix(rho, rho_new, preconditioner)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/mixer.py\", line 378, in mix\n    rho_next = self._hybrid_mix(runs, preconditioner)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/mixer.py\", line 474, in _hybrid_mix\n    rho_next = self._pulay_mix_early(runs, preconditioner)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/r-phanish6-0/SPARC-atomSFE_original/SPARC-atomSFE/src/scf/mixer.py\", line 611, in _pulay_mix_early\n    F_gamma = np.linalg.inv(F.T @ F) @ (F.T @ Fk)\n              ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/lib/python3.12/site-packages/numpy/linalg/_linalg.py\", line 648, in inv\n    ainv = _umath_linalg.inv(a, signature=signature)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/lib/python3.12/site-packages/numpy/linalg/_linalg.py\", line 145, in _raise_linalgerror_singular\n    raise LinAlgError(\"Singular matrix\")\nnumpy.linalg.LinAlgError: Singular matrix\n",
+  "wall_s": 163.1441581249237,
+  "xc": "RPA"
+}

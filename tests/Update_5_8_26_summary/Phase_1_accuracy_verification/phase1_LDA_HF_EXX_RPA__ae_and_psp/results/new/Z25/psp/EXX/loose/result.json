@@ -1,0 +1,93 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__psp__EXX__loose",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.10195438364516,
+    -2.0319464891571295,
+    -0.30645122214272436,
+    -0.26808348255242814
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -198.51815921834518,
+    "hartree": 81.96268518386866,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 26.029468841515197,
+    "kinetic_radial": 16.019527075366124,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.502943795428484,
+    "oep_exchange": -9.07537017697805,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:22:42",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 1521,
+    "peak_rss_single_mb": 234.1,
+    "peak_rss_tree_mb": 234.1,
+    "ru_maxrss_child_mb": 234.1,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "EXX"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 8,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "54",
+    "cpus": "3",
+    "job_id": "11657392",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.06076312065124512,
+  "t_solve_s": 6.117815732955933,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -98.08479209000174,
+  "wall_s": 8.418288707733154,
+  "xc": "EXX"
+}

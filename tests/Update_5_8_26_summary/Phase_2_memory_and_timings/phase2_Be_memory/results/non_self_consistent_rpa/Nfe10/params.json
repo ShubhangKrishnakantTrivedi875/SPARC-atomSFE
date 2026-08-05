@@ -1,0 +1,17 @@
+{
+  "all_electron_flag": true,
+  "angular_momentum_cutoff": 30,
+  "atomic_number": 4,
+  "domain_size": 13.0,
+  "finite_element_number": 10,
+  "frequency_quadrature_point_number": 24,
+  "ground_state_functional": "GGA_PBE",
+  "max_scf_iterations_outer": 1,
+  "mesh_concentration": 2,
+  "mesh_type": "polynomial",
+  "polynomial_order": 20,
+  "quadrature_point_number": 45,
+  "scf_tolerance": 1e-08,
+  "use_oep": false,
+  "xc_functional": "RPA@DFT"
+}

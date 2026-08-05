@@ -1,0 +1,103 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__ae__LDA__loose",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -233.69695078852584,
+    -26.86654668445571,
+    -23.06620739462729,
+    -3.07644115702474,
+    -1.9912570654625614,
+    -0.2663742056517413,
+    -0.19113708729704065
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": -2.088492434689612,
+    "exchange": -47.292993247292806,
+    "external": -2731.124870473129,
+    "hartree": 485.0780639726901,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 277.56117788552615,
+    "kinetic_radial": 869.4272851995706,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": 0.0,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 14:10:35",
+  "l_values": [
+    0,
+    0,
+    1,
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 510,
+    "peak_rss_single_mb": 196.7,
+    "peak_rss_tree_mb": 196.7,
+    "ru_maxrss_child_mb": 196.7,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 7,
+  "n_values": [
+    1,
+    2,
+    2,
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    6.0,
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "LDA_PW"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 11,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "8",
+    "cpus": "3",
+    "job_id": "11654840",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.017224550247192383,
+  "t_solve_s": 0.4125673770904541,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -1148.4398290973247,
+  "wall_s": 2.864899158477783,
+  "xc": "LDA"
+}

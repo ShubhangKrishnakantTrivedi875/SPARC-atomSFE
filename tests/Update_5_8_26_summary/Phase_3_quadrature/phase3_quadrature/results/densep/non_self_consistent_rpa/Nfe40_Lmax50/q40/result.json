@@ -1,0 +1,53 @@
+{
+  "Z": 18,
+  "cid": "nsc__densep__q40",
+  "code": "densep",
+  "electrons": "ae",
+  "error": "TypeError: AtomicDFTSolver.__init__() got an unexpected keyword argument 'ground_state_functional'",
+  "exit_code": 1,
+  "finished_at": "2026-08-03 22:11:33",
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 3366,
+    "peak_rss_single_mb": 162.9,
+    "peak_rss_tree_mb": 162.9,
+    "ru_maxrss_child_mb": 162.9,
+    "sample_dt_s": 0.005
+  },
+  "ok": false,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 50,
+    "atomic_number": 18,
+    "domain_size": 13.0,
+    "finite_element_number": 40,
+    "frequency_quadrature_point_number": 8,
+    "ground_state_functional": "GGA_PBE",
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 40,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "RPA@DFT"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "q40",
+  "slurm": {
+    "array_task": "9",
+    "cpus": "3",
+    "job_id": "11660305",
+    "ntasks": "8"
+  },
+  "t_construct_s": NaN,
+  "t_solve_s": NaN,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "traceback": "Traceback (most recent call last):\n  File \"/storage/project/r-phanish6-0/strivedi44/phase3_quadrature/_child_sparc.py\", line 44, in <module>\n    solver = AtomicDFTSolver(**kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: AtomicDFTSolver.__init__() got an unexpected keyword argument 'ground_state_functional'\n",
+  "wall_s": 18.46946668624878,
+  "xc": "RPA@DFT"
+}

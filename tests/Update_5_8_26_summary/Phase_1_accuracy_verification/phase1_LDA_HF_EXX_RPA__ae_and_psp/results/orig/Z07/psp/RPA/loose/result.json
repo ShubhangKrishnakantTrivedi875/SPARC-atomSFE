@@ -1,0 +1,85 @@
+{
+  "Z": 7,
+  "cid": "orig__Z07__psp__RPA__loose",
+  "code": "orig",
+  "converged": true,
+  "eigenvalues": [
+    -0.677782811860899,
+    -0.25443140952172694
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -20.447252330945567,
+    "hartree": 7.752488612958382,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.0809533860644622,
+    "kinetic_radial": 2.6811072427055826,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -0.4927397174626261,
+    "oep_exchange": -1.5959718933264635,
+    "rpa_correlation": -0.23379962736283835
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:29:42",
+  "l_values": [
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 4349,
+    "peak_rss_single_mb": 1360.2,
+    "peak_rss_tree_mb": 1360.2,
+    "ru_maxrss_child_mb": 1361.5,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 2,
+  "n_values": [
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 11,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "107",
+    "cpus": "3",
+    "job_id": "11657570",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.06254935264587402,
+  "t_solve_s": 20.980351209640503,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -9.255214327369067,
+  "wall_s": 24.054415225982666,
+  "xc": "RPA"
+}

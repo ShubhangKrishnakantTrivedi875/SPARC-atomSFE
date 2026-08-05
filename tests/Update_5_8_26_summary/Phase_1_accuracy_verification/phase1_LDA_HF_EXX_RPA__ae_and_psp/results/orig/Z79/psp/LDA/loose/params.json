@@ -1,0 +1,13 @@
+{
+  "all_electron_flag": false,
+  "atomic_number": 79,
+  "domain_size": 13.0,
+  "finite_element_number": 15,
+  "mesh_concentration": 2,
+  "mesh_type": "polynomial",
+  "polynomial_order": 20,
+  "quadrature_point_number": 45,
+  "scf_tolerance": 1e-08,
+  "use_oep": false,
+  "xc_functional": "LDA_PW"
+}

@@ -1,0 +1,91 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__psp__HF__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.941325503361517,
+    -2.5902745750694596,
+    -0.25185852678262616,
+    -0.2682354019215377
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -198.51883834032319,
+    "hartree": 81.9600128113838,
+    "hf_exchange": -9.088585422340937,
+    "kinetic_angular": 25.86091269190174,
+    "kinetic_radial": 16.04558503397804,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.350576297037144,
+    "oep_exchange": 0.0,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:39:58",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 134540,
+    "peak_rss_single_mb": 369.1,
+    "peak_rss_tree_mb": 369.1,
+    "ru_maxrss_child_mb": 369.1,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "HF"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 17,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "97",
+    "cpus": "3",
+    "job_id": "11657505",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.08461499214172363,
+  "t_solve_s": 730.7159569263458,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -98.09148952243771,
+  "wall_s": 733.3035035133362,
+  "xc": "HF"
+}

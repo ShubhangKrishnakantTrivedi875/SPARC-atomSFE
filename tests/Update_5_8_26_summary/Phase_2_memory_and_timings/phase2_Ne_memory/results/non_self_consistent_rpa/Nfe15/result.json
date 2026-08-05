@@ -1,0 +1,91 @@
+{
+  "Z": 10,
+  "cid": "nsc__Nfe15",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -30.489336067291504,
+    -1.3331844127359551,
+    -0.4905037820602528
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -310.89766410705306,
+    "hartree": 65.84310952730208,
+    "hf_exchange": -12.044810282245892,
+    "kinetic_angular": 18.577448263203074,
+    "kinetic_radial": 109.98520434093923,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": 0.0,
+    "rpa_correlation": -0.6080470739143164
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 16:13:27",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 2582,
+    "peak_rss_single_mb": 649.6,
+    "peak_rss_tree_mb": 649.6,
+    "ru_maxrss_child_mb": 649.6,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    6.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 30,
+    "atomic_number": 10,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 24,
+    "ground_state_functional": "GGA_PBE",
+    "max_scf_iterations_outer": 1,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "RPA@DFT"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 10,
+  "setting": "Nfe15",
+  "slurm": {
+    "array_task": "8",
+    "cpus": "1",
+    "job_id": "11672899",
+    "ntasks": "24"
+  },
+  "t_construct_s": 0.01589822769165039,
+  "t_solve_s": 11.326685667037964,
+  "threads": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -129.14475933176888,
+  "wall_s": 14.327313661575317,
+  "xc": "RPA@DFT"
+}

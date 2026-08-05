@@ -1,0 +1,105 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__ae__EXX__loose",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -234.35320411910038,
+    -26.969137580301734,
+    -23.109548363642077,
+    -3.1703110277781867,
+    -2.0588345116568605,
+    -0.30744373367717226,
+    -0.2660000118050062
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -2730.08946603526,
+    "hartree": 482.29365857967844,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 276.25615684406785,
+    "kinetic_radial": 872.4093880742088,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -49.535210918169575,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:22:14",
+  "l_values": [
+    0,
+    0,
+    1,
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 1485,
+    "peak_rss_single_mb": 225.8,
+    "peak_rss_tree_mb": 225.8,
+    "ru_maxrss_child_mb": 225.8,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 7,
+  "n_values": [
+    1,
+    2,
+    2,
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    6.0,
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "EXX"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 5,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "52",
+    "cpus": "3",
+    "job_id": "11657373",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.023513317108154297,
+  "t_solve_s": 5.237793207168579,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -1148.6654734554745,
+  "wall_s": 8.297080755233765,
+  "xc": "EXX"
+}

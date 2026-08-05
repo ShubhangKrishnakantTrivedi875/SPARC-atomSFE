@@ -1,0 +1,89 @@
+{
+  "Z": 10,
+  "cid": "sc__Nfe05",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -30.844040206552098,
+    -1.6672404891777726,
+    -0.8125758484705998
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -311.11563463015386,
+    "hartree": 66.01766224180302,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 18.543833007459707,
+    "kinetic_radial": 110.08965803951193,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -12.07827312798615,
+    "rpa_correlation": -0.604227985588975
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 16:00:38",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 4606,
+    "peak_rss_single_mb": 201.9,
+    "peak_rss_tree_mb": 201.9,
+    "ru_maxrss_child_mb": 201.9,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    6.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 30,
+    "atomic_number": 10,
+    "domain_size": 13.0,
+    "finite_element_number": 5,
+    "frequency_quadrature_point_number": 24,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/usr/local/pace-apps/manual/packages/anaconda3/2023.03/bin/python",
+  "scf_iterations": 5,
+  "setting": "Nfe05",
+  "slurm": {
+    "array_task": null,
+    "cpus": null,
+    "job_id": "11671589",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.014867305755615234,
+  "t_solve_s": 25.63123083114624,
+  "threads": {
+    "MKL_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -129.14698245495435,
+  "wall_s": 28.600210189819336,
+  "xc": "RPA"
+}

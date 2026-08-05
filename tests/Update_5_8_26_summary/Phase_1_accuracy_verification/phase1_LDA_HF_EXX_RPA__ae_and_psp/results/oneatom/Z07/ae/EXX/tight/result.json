@@ -1,0 +1,72 @@
+{
+  "Z": 7,
+  "cid": "oneatom__Z07__ae__EXX__tight",
+  "code": "oneatom",
+  "eigenvalues": [
+    -14.1913962999,
+    -0.7516741152,
+    -0.3188579442
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "exact_exchange": -5.9240349022,
+    "external": -127.0393842417,
+    "hartree": 25.2677137851,
+    "kinetic": 53.8478587166
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:14:01",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 2688,
+    "peak_rss_single_mb": 341.9,
+    "peak_rss_tree_mb": 2749.6,
+    "ru_maxrss_child_mb": 16.1,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "ok": true,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "OEPx"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "tight",
+  "slurm": {
+    "array_task": "50",
+    "cpus": "3",
+    "job_id": "11657278",
+    "ntasks": "8"
+  },
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -53.8478466422,
+  "wall_s": 15.408565998077393,
+  "xc": "EXX"
+}

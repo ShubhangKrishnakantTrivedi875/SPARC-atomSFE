@@ -1,0 +1,93 @@
+{
+  "Z": 42,
+  "cid": "new__Z42__psp__RPA__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -2.3526160547124215,
+    -1.4284469374346345,
+    -0.17154358777445827,
+    -0.20935833792049952
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -145.63820152135273,
+    "hartree": 54.444569009084645,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 12.351024668683763,
+    "kinetic_radial": 8.397018933546676,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 10.560384794395356,
+    "oep_exchange": -6.281419639512141,
+    "rpa_correlation": -0.8071984494079704
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:53:19",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 136834,
+    "peak_rss_single_mb": 1337.7,
+    "peak_rss_tree_mb": 1337.7,
+    "ru_maxrss_child_mb": 1337.7,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    4,
+    4,
+    4,
+    5
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    1.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 42,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 13,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "153",
+    "cpus": "3",
+    "job_id": "11657727",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.08653116226196289,
+  "t_solve_s": 760.194408416748,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -66.9738222045624,
+  "wall_s": 762.4981071949005,
+  "xc": "RPA"
+}

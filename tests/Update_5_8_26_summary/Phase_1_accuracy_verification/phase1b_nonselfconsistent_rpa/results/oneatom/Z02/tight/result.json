@@ -1,0 +1,66 @@
+{
+  "Z": 2,
+  "cid": "oneatom__Z02__ae__RPA@DFT__tight",
+  "code": "oneatom",
+  "eigenvalues": [
+    -0.5792907482
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "exact_exchange": -0.0,
+    "external": -6.7294577172,
+    "hartree": 2.0267374125,
+    "kinetic": 2.8559477347,
+    "rpa_correlation": -0.0843896783
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 10:54:08",
+  "l_values": [
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 11344,
+    "peak_rss_single_mb": 632.4,
+    "peak_rss_tree_mb": 653.1,
+    "ru_maxrss_child_mb": 15.2,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 1,
+  "n_values": [
+    1
+  ],
+  "ok": true,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 2,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "tight",
+  "slurm": {
+    "array_task": "5",
+    "cpus": "3",
+    "job_id": "11668143",
+    "ntasks": "8"
+  },
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -2.977324619,
+  "wall_s": 62.81115698814392,
+  "xc": "RPA@DFT"
+}

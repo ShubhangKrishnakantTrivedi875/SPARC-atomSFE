@@ -1,0 +1,72 @@
+{
+  "Z": 25,
+  "cid": "oneatom__Z25__psp__LDA__loose",
+  "code": "oneatom",
+  "eigenvalues": [
+    -3.157746808,
+    -2.0077029355,
+    -0.253947995,
+    -0.1955860835
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "external": -201.0595155977,
+    "hartree": 83.7238816298,
+    "kinetic": 43.451615016
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:04:28",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 575,
+    "peak_rss_single_mb": 179.6,
+    "peak_rss_tree_mb": 200.8,
+    "ru_maxrss_child_mb": 16.1,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "ok": true,
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "LDA_SPW"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "loose",
+  "slurm": {
+    "array_task": "5",
+    "cpus": "3",
+    "job_id": "11657136",
+    "ntasks": "8"
+  },
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -105.1156476605,
+  "wall_s": 3.2152979373931885,
+  "xc": "LDA"
+}

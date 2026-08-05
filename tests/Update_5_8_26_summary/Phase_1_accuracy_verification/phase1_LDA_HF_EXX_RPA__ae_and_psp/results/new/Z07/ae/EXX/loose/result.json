@@ -1,0 +1,89 @@
+{
+  "Z": 7,
+  "cid": "new__Z07__ae__EXX__loose",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -14.191961673962995,
+    -0.7522396771197293,
+    -0.3194235164455783
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -127.03938645309583,
+    "hartree": 25.267715941939255,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.582264459405785,
+    "kinetic_radial": 50.265594542502825,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -5.924035129407698,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 15:29:33",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 1110,
+    "peak_rss_single_mb": 224.6,
+    "peak_rss_tree_mb": 224.6,
+    "ru_maxrss_child_mb": 224.6,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "EXX"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 7,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "40",
+    "cpus": "3",
+    "job_id": "11656797",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.01853203773498535,
+  "t_solve_s": 3.2847230434417725,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -53.84784663865566,
+  "wall_s": 6.108562469482422,
+  "xc": "EXX"
+}

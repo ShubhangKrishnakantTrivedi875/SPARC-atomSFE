@@ -1,0 +1,89 @@
+{
+  "Z": 7,
+  "cid": "orig__Z07__ae__EXX__tight",
+  "code": "orig",
+  "converged": true,
+  "eigenvalues": [
+    -14.19144735545846,
+    -0.7516772641482359,
+    -0.3188594253565157
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -127.03958023279658,
+    "hartree": 25.267762391552864,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.5822784292920837,
+    "kinetic_radial": 50.26573809098405,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -5.924045319504599,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:29:02",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 2784,
+    "peak_rss_single_mb": 323.3,
+    "peak_rss_tree_mb": 323.3,
+    "ru_maxrss_child_mb": 323.3,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "EXX"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 7,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "104",
+    "cpus": "3",
+    "job_id": "11657561",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.03562188148498535,
+  "t_solve_s": 12.378815650939941,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -53.847846640472184,
+  "wall_s": 15.257972955703735,
+  "xc": "EXX"
+}

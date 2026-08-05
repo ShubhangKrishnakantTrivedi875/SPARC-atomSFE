@@ -1,0 +1,28 @@
+{
+  "env": {
+    "NU_AE": "0",
+    "NU_CONC": "2",
+    "NU_DOMAIN": "13.0",
+    "NU_MESH": "polynomial",
+    "NU_NE": "15",
+    "NU_P": "20",
+    "NU_Q": "45",
+    "NU_SAVE_TABLES": "0",
+    "NU_SCFTOL": "1e-08",
+    "NU_XC": "HFx",
+    "NU_Z": "7"
+  },
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "HFx"
+  }
+}

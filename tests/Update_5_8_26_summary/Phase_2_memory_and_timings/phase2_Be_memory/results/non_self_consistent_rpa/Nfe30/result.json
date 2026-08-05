@@ -1,0 +1,87 @@
+{
+  "Z": 4,
+  "cid": "nsc__Nfe30",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.902585076967555,
+    -0.20610364320922192
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -33.638165471036444,
+    "hartree": 7.168866314508114,
+    "hf_exchange": -2.6595487760772807,
+    "kinetic_angular": 0.0,
+    "kinetic_radial": 14.558378895217695,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": 0.0,
+    "rpa_correlation": -0.1817670667620362
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 16:14:10",
+  "l_values": [
+    0,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 10805,
+    "peak_rss_single_mb": 1762.0,
+    "peak_rss_tree_mb": 1762.0,
+    "ru_maxrss_child_mb": 1762.0,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 2,
+  "n_values": [
+    1,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 30,
+    "atomic_number": 4,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 24,
+    "ground_state_functional": "GGA_PBE",
+    "max_scf_iterations_outer": 1,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "RPA@DFT"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 10,
+  "setting": "Nfe30",
+  "slurm": {
+    "array_task": "11",
+    "cpus": "1",
+    "job_id": "11672720",
+    "ntasks": "24"
+  },
+  "t_construct_s": 0.029265165328979492,
+  "t_solve_s": 57.18416476249695,
+  "threads": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -14.752236104149949,
+  "wall_s": 59.650503635406494,
+  "xc": "RPA@DFT"
+}

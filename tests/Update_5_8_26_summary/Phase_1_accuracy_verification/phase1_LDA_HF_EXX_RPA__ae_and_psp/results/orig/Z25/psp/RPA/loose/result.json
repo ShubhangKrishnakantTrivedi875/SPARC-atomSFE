@@ -1,0 +1,93 @@
+{
+  "Z": 25,
+  "cid": "orig__Z25__psp__RPA__loose",
+  "code": "orig",
+  "converged": false,
+  "eigenvalues": [
+    -2.9083923545490036,
+    -1.819034179961497,
+    -0.09014352374679362,
+    -0.09783246194438196
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -198.22257468096765,
+    "hartree": 81.67350966342335,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 25.91287063295153,
+    "kinetic_radial": 16.075562807008048,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.458609015173316,
+    "oep_exchange": -9.049264217733112,
+    "rpa_correlation": -0.8254972045516783
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:33:46",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 37540,
+    "peak_rss_single_mb": 2533.7,
+    "peak_rss_tree_mb": 2533.7,
+    "ru_maxrss_child_mb": 2534.3,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 50,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "119",
+    "cpus": "3",
+    "job_id": "11657592",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.05991864204406738,
+  "t_solve_s": 202.65379285812378,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -98.89400201504284,
+  "wall_s": 205.73029732704163,
+  "xc": "RPA"
+}

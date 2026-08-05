@@ -1,0 +1,91 @@
+{
+  "Z": 42,
+  "cid": "new__Z42__psp__LDA__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -2.366181774457286,
+    -1.415445315047493,
+    -0.14414644353276312,
+    -0.1593695273022312
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": -0.9861736385155181,
+    "exchange": -8.825213487293327,
+    "external": -148.01353371298222,
+    "hartree": 55.854844057763074,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 12.847054380437587,
+    "kinetic_radial": 8.50146154075875,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 11.069081700631349,
+    "oep_exchange": 0.0,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:24:41",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 642,
+    "peak_rss_single_mb": 249.6,
+    "peak_rss_tree_mb": 249.6,
+    "ru_maxrss_child_mb": 249.6,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    4,
+    4,
+    4,
+    5
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    1.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 42,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "LDA_PW"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 9,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "67",
+    "cpus": "3",
+    "job_id": "11657431",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.08565878868103027,
+  "t_solve_s": 1.2807869911193848,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -69.5524791592003,
+  "wall_s": 3.577688694000244,
+  "xc": "LDA"
+}

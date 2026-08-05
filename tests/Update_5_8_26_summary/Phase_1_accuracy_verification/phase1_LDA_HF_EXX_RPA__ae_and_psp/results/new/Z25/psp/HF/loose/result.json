@@ -1,0 +1,91 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__psp__HF__loose",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.94132547523726,
+    -2.5902745495919186,
+    -0.2518583098140198,
+    -0.26823542987313975
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -198.5188387197927,
+    "hartree": 81.96001286389131,
+    "hf_exchange": -9.088585421995816,
+    "kinetic_angular": 25.860913641498726,
+    "kinetic_radial": 16.045585206911962,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.350576181153407,
+    "oep_exchange": 0.0,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 15:30:33",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 17931,
+    "peak_rss_single_mb": 230.0,
+    "peak_rss_tree_mb": 230.0,
+    "ru_maxrss_child_mb": 230.0,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": false,
+    "xc_functional": "HF"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 17,
+  "setting": "loose",
+  "slurm": {
+    "array_task": "37",
+    "cpus": "3",
+    "job_id": "11656790",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.05964851379394531,
+  "t_solve_s": 95.0602195262909,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -98.09148861063993,
+  "wall_s": 97.38335490226746,
+  "xc": "HF"
+}

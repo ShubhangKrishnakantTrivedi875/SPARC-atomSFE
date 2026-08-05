@@ -1,0 +1,93 @@
+{
+  "Z": 25,
+  "cid": "new__Z25__psp__EXX__tight",
+  "code": "new",
+  "converged": true,
+  "eigenvalues": [
+    -3.1019740856011238,
+    -2.031966151354882,
+    -0.3064711289248905,
+    -0.26810314804249813
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -198.51816100179028,
+    "hartree": 81.9626872339283,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 26.029467543530156,
+    "kinetic_radial": 16.019527131749154,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -14.502943617162439,
+    "oep_exchange": -9.075370296188998,
+    "rpa_correlation": 0.0
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:29:46",
+  "l_values": [
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 5096,
+    "peak_rss_single_mb": 359.1,
+    "peak_rss_tree_mb": 359.1,
+    "ru_maxrss_child_mb": 359.1,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 4,
+  "n_values": [
+    3,
+    3,
+    3,
+    4
+  ],
+  "occupations": [
+    2.0,
+    6.0,
+    5.0,
+    2.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 25,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "EXX"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 8,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "114",
+    "cpus": "3",
+    "job_id": "11657577",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.09356498718261719,
+  "t_solve_s": 24.850584506988525,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -98.08479300593407,
+  "wall_s": 27.889878034591675,
+  "xc": "EXX"
+}

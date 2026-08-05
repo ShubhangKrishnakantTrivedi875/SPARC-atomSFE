@@ -1,0 +1,89 @@
+{
+  "Z": 7,
+  "cid": "orig__Z07__ae__RPA__tight",
+  "code": "orig",
+  "converged": true,
+  "eigenvalues": [
+    -14.185340968210193,
+    -0.7039379508180953,
+    -0.27809207375440925
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -127.08134356990692,
+    "hartree": 25.239618554868688,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.616275649692755,
+    "kinetic_radial": 50.296056691340375,
+    "ml_xc": 0.0,
+    "nonlocal_psp": 0.0,
+    "oep_exchange": -5.9164819699271725,
+    "rpa_correlation": -0.34865991052784856
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:46:21",
+  "l_values": [
+    0,
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 79205,
+    "peak_rss_single_mb": 20174.0,
+    "peak_rss_tree_mb": 20174.0,
+    "ru_maxrss_child_mb": 20231.9,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 3,
+  "n_values": [
+    1,
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 8,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "146",
+    "cpus": "3",
+    "job_id": "11657699",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.045879364013671875,
+  "t_solve_s": 434.1837389469147,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -54.19453455446013,
+  "wall_s": 437.3095555305481,
+  "xc": "RPA"
+}

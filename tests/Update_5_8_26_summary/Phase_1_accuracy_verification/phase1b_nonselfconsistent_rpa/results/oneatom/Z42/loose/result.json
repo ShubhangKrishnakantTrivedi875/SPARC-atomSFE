@@ -1,0 +1,93 @@
+{
+  "Z": 42,
+  "cid": "oneatom__Z42__ae__RPA@DFT__loose",
+  "code": "oneatom",
+  "eigenvalues": [
+    -710.1883906759,
+    -98.6075380519,
+    -90.8233342178,
+    -16.7183711956,
+    -13.7264410259,
+    -8.2457652555,
+    -2.2329138077,
+    -1.3860107808,
+    -0.1464772555,
+    -0.1392850046
+  ],
+  "electrons": "ae",
+  "energy_components": {
+    "exact_exchange": -0.0,
+    "external": -9470.1978079413,
+    "hartree": 1639.3621716671,
+    "kinetic": 3975.0789470736,
+    "rpa_correlation": -2.5068130822
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-04 10:53:18",
+  "l_values": [
+    0,
+    0,
+    1,
+    0,
+    1,
+    2,
+    0,
+    1,
+    2,
+    0
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 2290,
+    "peak_rss_single_mb": 241.1,
+    "peak_rss_tree_mb": 262.1,
+    "ru_maxrss_child_mb": 15.6,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 10,
+  "n_values": [
+    1,
+    2,
+    2,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    5
+  ],
+  "ok": true,
+  "params": {
+    "all_electron_flag": true,
+    "angular_momentum_cutoff": 4,
+    "atomic_number": 42,
+    "domain_size": 13.0,
+    "finite_element_number": 15,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "setting": "loose",
+  "slurm": {
+    "array_task": "3",
+    "cpus": "3",
+    "job_id": "11668142",
+    "ntasks": "8"
+  },
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -3979.4719594102,
+  "wall_s": 12.603135585784912,
+  "xc": "RPA@DFT"
+}

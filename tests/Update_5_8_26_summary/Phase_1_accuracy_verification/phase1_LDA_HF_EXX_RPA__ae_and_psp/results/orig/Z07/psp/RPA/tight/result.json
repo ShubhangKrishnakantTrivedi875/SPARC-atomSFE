@@ -1,0 +1,85 @@
+{
+  "Z": 7,
+  "cid": "orig__Z07__psp__RPA__tight",
+  "code": "orig",
+  "converged": true,
+  "eigenvalues": [
+    -0.6811365977957737,
+    -0.257499823107108
+  ],
+  "electrons": "psp",
+  "energy_components": {
+    "correlation": 0.0,
+    "exchange": 0.0,
+    "external": -20.456432100478494,
+    "hartree": 7.75974952162765,
+    "hf_exchange": 0.0,
+    "kinetic_angular": 3.083336953980845,
+    "kinetic_radial": 2.682858010880226,
+    "ml_xc": 0.0,
+    "nonlocal_psp": -0.4938205732304366,
+    "oep_exchange": -1.5973557907388187,
+    "rpa_correlation": -0.24246150898692842
+  },
+  "error": null,
+  "exit_code": 0,
+  "finished_at": "2026-08-03 16:48:01",
+  "l_values": [
+    0,
+    1
+  ],
+  "memory": {
+    "discover_dt_s": 0.5,
+    "n_samples": 97790,
+    "peak_rss_single_mb": 13582.2,
+    "peak_rss_tree_mb": 13582.2,
+    "ru_maxrss_child_mb": 13611.8,
+    "sample_dt_s": 0.005
+  },
+  "n_states": 2,
+  "n_values": [
+    2,
+    2
+  ],
+  "occupations": [
+    2.0,
+    3.0
+  ],
+  "ok": true,
+  "outer_iterations": -1,
+  "params": {
+    "all_electron_flag": false,
+    "angular_momentum_cutoff": 25,
+    "atomic_number": 7,
+    "domain_size": 13.0,
+    "finite_element_number": 30,
+    "frequency_quadrature_point_number": 8,
+    "mesh_concentration": 2,
+    "mesh_type": "polynomial",
+    "polynomial_order": 20,
+    "quadrature_point_number": 45,
+    "scf_tolerance": 1e-08,
+    "use_oep": true,
+    "xc_functional": "RPA"
+  },
+  "python": "/storage/home/hcoda1/5/strivedi44/.conda/envs/krr_env/bin/python",
+  "scf_iterations": 12,
+  "setting": "tight",
+  "slurm": {
+    "array_task": "147",
+    "cpus": "3",
+    "job_id": "11657704",
+    "ntasks": "8"
+  },
+  "t_construct_s": 0.08692312240600586,
+  "t_solve_s": 535.3996806144714,
+  "threads": {
+    "MKL_NUM_THREADS": "3",
+    "OMP_NUM_THREADS": "3",
+    "RPA_BLAS_THREADS": null,
+    "RPA_N_WORKERS": null
+  },
+  "total_energy": -9.264125486945956,
+  "wall_s": 537.7539103031158,
+  "xc": "RPA"
+}
