@@ -92,34 +92,41 @@ class EigenSolver:
     def solve_generalized_full(self, H: np.ndarray, S: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """
         Solve for all eigenvalues and eigenvectors of the generalized eigenvalue problem Hx = λSx.
+
+        Uses the 'gvd' (divide-and-conquer) driver, which is faster than 'gv' when the whole
+        spectrum is wanted, at the cost of more workspace.
         """
         try:
-            return eigh(H, S, check_finite=False, driver='gv')
+            return eigh(H, S, check_finite=False, driver='gvd')
         except TypeError:
             return eigh(
                 np.asarray(H, dtype=np.float64),
                 np.asarray(S, dtype=np.float64),
                 check_finite=False,
-                driver='gv',
+                driver='gvd',
             )
 
 
     def solve_generalized_lowest(self, H: np.ndarray, S: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
         """
         Solve for k lowest eigenvalues and eigenvectors of the generalized eigenvalue problem Hx = λSx.
-        
-        Note: 'gv' driver supports generalized eigenvalue problems but not subset_by_index,
-        so we compute all eigenvalues and select the k lowest ones.
+
+        Uses the 'gvx' (expert) driver, which accepts subset_by_index, so only the k lowest
+        eigenpairs are computed rather than the whole spectrum.
         """
-        # Compute all eigenvalues (gv driver doesn't support subset_by_index)
         try:
-            eigvals, eigvecs = eigh(H, S, check_finite=False, driver='gv')
+            eigvals, eigvecs = eigh(
+                H, S,
+                subset_by_index = [0, k-1],
+                check_finite    = False,
+                driver          = 'gvx',
+            )
         except TypeError:
             eigvals, eigvecs = eigh(
                 np.asarray(H, dtype=np.float64),
                 np.asarray(S, dtype=np.float64),
-                check_finite=False,
-                driver='gv',
+                subset_by_index = [0, k-1],
+                check_finite    = False,
+                driver          = 'gvx',
             )
-        # Return only the k lowest eigenvalues and corresponding eigenvectors
-        return eigvals[:k], eigvecs[:, :k]
+        return eigvals, eigvecs

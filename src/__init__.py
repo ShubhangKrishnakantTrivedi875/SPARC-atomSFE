@@ -56,15 +56,9 @@ def _threadpoolctl_installed() -> bool:
 
 _THREADPOOLCTL_INSTALLED = _threadpoolctl_installed()
 
-# Force MKL / OpenBLAS into single-thread mode without any extra dependency.
-if not _BLAS_ENV_SINGLE_THREADED:
-    os.environ["OMP_NUM_THREADS"] = "1"
-    os.environ["MKL_NUM_THREADS"] = "1"
-    os.environ["OPENBLAS_NUM_THREADS"] = "1"
-    os.environ["NUMEXPR_NUM_THREADS"] = "1"
-else:
-    # Do not override user settings when NumPy is already loaded.
-    pass
+# BLAS/OpenMP thread counts are NOT forced here: whatever the environment says is
+# what the run uses.  _BLAS_ENV_SINGLE_THREADED and _THREADPOOLCTL_INSTALLED are
+# still recorded above, for the parallel sections to report on.
 
 
 

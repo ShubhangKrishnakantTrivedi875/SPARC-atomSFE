@@ -335,13 +335,18 @@ class HamiltonianBuilder:
             eigenvectors = S_inv_sqrt @ eigenvectors
 
 
-        if pad_width > 0:
-            eigenvectors = np.pad(eigenvectors,((pad_width,pad_width),(0,0)))
-
         global_interpolation_matrix = self.ops_builder.get_global_interpolation_matrix()
-        eigenvectors_quadrature = global_interpolation_matrix @ eigenvectors
 
-        return eigenvectors_quadrature
+        # The padded rows are zeros, so they contribute nothing to the product.  Rather
+        # than materialise a padded copy of the eigenvectors -- which is the largest
+        # array in play at this point -- drop the corresponding COLUMNS of the
+        # interpolation matrix.  That slice is a view, and the matrix is far smaller than
+        # the eigenvector block.
+        if pad_width > 0:
+            global_interpolation_matrix = \
+                global_interpolation_matrix[:, pad_width:-pad_width]
+
+        return global_interpolation_matrix @ eigenvectors
         
 
 

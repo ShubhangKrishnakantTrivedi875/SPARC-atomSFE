@@ -4,6 +4,83 @@
 -changes
 
 
+----------------
+-Date
+-Name
+-changes
+
+
+----------------
+Aug 05, 2026
+Name: Shubhang Krishnakant Trivedi
+Changes: (src/solver.py, src/__init__.py, pyproject.toml, tests/accuracy/RPA,  tests/README.md,
+          src/scf/driver.py, src/scf/eigensolver.py, src/scf/energy.py, src/scf/hamiltonian.py,
+          src/xc/functional_requirements.py, src/xc/hf.py, src/xc/oep.py, src/xc/rpa.py,
+          )
+1. Bug Fixes:     - RPA (static chi0, Green's function, ...) previously incorrect for non-closed-shell systems
+                  - Self-consistent RPA now supports pseudopotential calculations.
+2. Major Changes: - Coulomb kernel in RPA (energy, potential, and energy density) through differential equation 
+                  - Made "differential equation" route of forming Coulomb kernel the default one in HF/EXX/RPA.
+                  - Added new XC functional: RPA@DFT to perform non-self-consistent RPA calculation (LDA/GGA orbitals for now) 
+                  - Significant memory optimizations in RPA (avoid storing large matrices -- product of eigenvectors etc)
+                  - Added RPA accuracy (with timing and memory) test suite (15 cases, 5
+                    elements x AE/psp x self-/non-self-consistent), with reference data
+                    generated on a 24-core allocation
+3. Minor Changes: - Loop over L'' and omega flipped in RPA; 
+                  - Dense basis order is now user-overridable (default unchanged) instead of hardcoded to 2p+1
+                  - Quadrature-order floor generalized to the largest of the standard, dense, and OEP basis orders
+                  - RPA correlation energy density without complex128 instances
+                  - Fix: Add boundary condition at -1/R if domain size < 9 Bohr in RPA and EXX
+                  - HOMO condition (zero point shift) removed in EXX.
+                  - Eigensolvers changed from gv -> gvd (full solve), gvx (only first k) -- optimization
+                  - Fixed pyproject.toml packaging bug.
+                  
+----------------
+May 28, 2026
+Name: Qihao Cheng
+Changes: (src/mesh/operators.py, src/solver.py, src/scf/driver.py)
+1. Vectorized uniform-grid export of orbitals and XC fields; `SCFResult` adds `symmetrize` and `orbital_coefficients` for post-SCF interpolation.
+
+
+----------------
+May 26, 2026
+Name: Qihao Cheng
+Changes: (tests/data/summary/pseudo_potential/, tests/paper/accuracy/pseudopotential_accuracy.tex, violin_plot/)
+1. Refresh pseudo benchmark summaries (`fe10_R040__z7c.json`) for LDA-SVWN, GGA-PBE, rSCAN, and PBE0 using mesh_concentration=20 runs.
+2. Update `pseudopotential_accuracy.tex` tables from per-orbital `(n,l)` eigenvalue comparisons against M-SPARC reference.
+3. Update PSP accuracy plotting inputs and regenerate related figures.
+
+
+----------------
+May 24, 2026
+Name: Qihao Cheng
+Changes: (psps/README.md, tests/data/summary/pseudo_potential/rscan/, tests/data/compare/, tests/paper/)
+1. Fix pseudo **rSCAN** convergence summaries under `tests/data/summary/pseudo_potential/rscan/` that had duplicated all-electron data; replace with correct pseudopotential sweep JSON (`__z69c`, corrected domain-radius mesh tags). Regenerate `pseudo_rscan_convergence_test_summary.pdf` and refresh supplementary convergence figures.
+2. Clarify pseudopotential folder mapping in `psps/README.md`: **LDA functionals** -> `psps/SPMS/`, **SCAN functionals** (not rSCAN only) -> `psps/SG15/`.
+
+
+----------------
+May 16, 2026
+Name: Qihao Cheng
+Changes: (README.md, docs/README.md, src/solver.py, psps/SPMS/, psps/SG15/, psps/README.md, tests/)
+1. Update DOE Office of Science grant number from DE-SC0019410 to DE-SC0023445 in acknowledgements.
+2. Add pseudopotential libraries under `psps/SPMS/` (LDA) and `psps/SG15/` (rSCAN); document XC-to-folder mapping in `psps/README.md`.
+3. Update `tests/`: reorganize committed convergence summaries, extend compare/plot scripts for AE and pseudo sweeps, and refresh supplementary paper material and docs.
+
+
+----------------
+May 9, 2026
+Name: Qihao Cheng
+Changes: (src/xc/, src/scf/driver.py, src/solver.py, tests/data)
+1. LDA naming: `LDA_SVWN` = Slater+VWN, `LDA_PZ` = Slater+Perdew–Zunger; stop using `LDA_PZ` for the VWN case.
+2. Update `FUNCTIONAL_MAP`, SCF driver XC lists, `functional_requirements`, and tests/data defaults to match.
+
+----------------
+May 4, 2026
+Name: Qihao Cheng
+Changes: (solver.py)
+1. Print last modified date of the code to output file.
+2. Create ChangeLog
 
 ----------------
 May 28, 2026

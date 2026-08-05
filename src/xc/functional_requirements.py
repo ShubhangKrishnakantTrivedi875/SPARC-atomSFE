@@ -122,6 +122,18 @@ _FUNCTIONAL_REQUIREMENTS: Dict[str, FunctionalRequirements] = {
         needs_orbitals=True
     ),
     
+    # Non-self-consistent RPA on top of a converged local functional.
+    # needs_gradient is True regardless of the ground-state functional: it is a
+    # superset (GGA_PBE needs it, LDA_PW does not), which keeps the requirement
+    # lookup keyed on xc_functional alone rather than threading the reference
+    # through every call site.
+    'RPA@DFT': FunctionalRequirements(
+        needs_gradient=True,
+        needs_tau=False,
+        functional_type='RPA',
+        needs_orbitals=True
+    ),
+
     # Random Phase Approximation
     'RPA': FunctionalRequirements(
         needs_gradient=True,

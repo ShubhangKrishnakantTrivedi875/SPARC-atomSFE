@@ -5,7 +5,7 @@ Computes total energy and all components from converged SCF solution
 
 from __future__ import annotations
 import numpy as np
-from typing import Optional, Tuple, TYPE_CHECKING
+from typing import Optional, Tuple, TYPE_CHECKING, Any
 from dataclasses import dataclass
 
 if TYPE_CHECKING:
@@ -178,6 +178,7 @@ class EnergyCalculator:
         xc_calculator     : Optional[XCEvaluator]         = None,
         hf_calculator     : Optional[HartreeFockExchange] = None,
         oep_calculator    : Optional[OEPCalculator]       = None,
+        rpa_calculator    : Optional[Any]                 = None,   # standalone RPACorrelation, 'RPA@DFT' only
         ml_xc_calculator  : Optional["MLXCCalculator"]    = None,
         derivative_matrix : Optional[np.ndarray]          = None,
         density_calculator: Optional["DensityCalculator"] = None,
@@ -229,6 +230,9 @@ class EnergyCalculator:
         self.xc_calculator      = xc_calculator
         self.hf_calculator      = hf_calculator
         self.oep_calculator     = oep_calculator
+        # Non-self-consistent RPA carries its own RPACorrelation instead of the mixin
+        # that OEPCalculator provides; see SCFDriver._initialize_rpa_calculator.
+        self.rpa_calculator     = rpa_calculator
         self.ml_xc_calculator   = ml_xc_calculator
         self.density_calculator = density_calculator
         self._check_initialization()
@@ -377,6 +381,15 @@ class EnergyCalculator:
             E_x *= (1.0 - mixing_parameter)
             E_hf_exchange *= mixing_parameter 
             E_oep_exchange *= mixing_parameter 
+
+        # Non-self-consistent RPA: the ground-state functional supplies the orbitals, but
+        # the reported energy is  E_x^EXX + E_c^RPA  in place of  E_x^ref + E_c^ref.
+        # Both local pieces are zeroed rather than dropped so total_potential -- which
+        # sums exchange + correlation + hf_exchange + rpa_correlation -- stays correct
+        # without touching EnergyComponents.
+        if self.switches.use_post_scf_rpa:
+            E_x = 0.0
+            E_c = 0.0
         
         return EnergyComponents(
             kinetic_radial  = T_radial,
@@ -734,7 +747,9 @@ class EnergyCalculator:
         float
             HF exchange energy (0.0 if no HF calculator available)
         """
-        if not self.switches.use_hf_exchange:
+        # RPA@DFT wants the exact-exchange ENERGY on the ground-state orbitals, while
+        # use_hf_exchange stays False so HF never enters the Hamiltonian.
+        if not (self.switches.use_hf_exchange or self.switches.use_post_scf_rpa):
             return 0.0
 
         assert isinstance(self.hf_calculator, HartreeFockExchange), \
@@ -770,11 +785,15 @@ class EnergyCalculator:
         """
         Compute RPA correlation energy.
         """
-        if not self.switches.use_oep_correlation:
+        if not (self.switches.use_oep_correlation or self.switches.use_post_scf_rpa):
             return 0.0
-        
-        assert isinstance(self.oep_calculator, OEPCalculator), \
-            OEP_CALCULATOR_NOT_A_OEPCALCULATOR_ERROR_MESSAGE.format(type(self.oep_calculator))        
+
+        # self-consistent RPA carries RPACorrelation as a mixin on the OEP calculator;
+        # 'RPA@DFT' has a standalone one instead
+        calculator = self.oep_calculator if self.switches.use_oep_correlation \
+                     else self.rpa_calculator
+        assert calculator is not None, \
+            OEP_CALCULATOR_NOT_A_OEPCALCULATOR_ERROR_MESSAGE.format(type(calculator))
 
         assert full_eigen_energies is not None, \
             FULL_EIGEN_ENERGIES_NOT_NONE_ERROR_MESSAGE
@@ -783,7 +802,7 @@ class EnergyCalculator:
         assert full_l_terms is not None, \
             FULL_L_TERMS_NOT_NONE_ERROR_MESSAGE
         
-        return self.oep_calculator.compute_correlation_energy(
+        return calculator.compute_correlation_energy(
             full_eigen_energies    = full_eigen_energies,
             full_orbitals          = full_orbitals,
             full_l_terms           = full_l_terms,
